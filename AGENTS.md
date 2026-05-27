@@ -106,9 +106,87 @@ thyforce/some_domain/some_component/core.hy
 from thyforce.some_domain.some_component import core
 ```
 
-## Python shims
+## Python / Hy interop and shims
 
-Small Python shims are acceptable when Python packaging or console entrypoints require them. Keep these minimal. Functional implementation should live in Hy components/bases.
+Small Python shims are acceptable when Python packaging, console entrypoints, or `python -m ...` execution require them. Keep these minimal. Functional implementation should live in Hy components/bases.
+
+Why shims may be needed:
+
+- Python packaging console scripts in `pyproject.toml` expect a Python-importable object of the form `module.path:function`.
+- Hy modules are importable from Python only after Hy's import hook has been installed, usually by `import hy`.
+- A tiny Python shim can install the Hy import hook, import the Hy implementation module, and delegate immediately.
+
+Recommended console-script shim pattern:
+
+```python
+# bases/thyforce/<domain>/<base>/runner.py
+
+def main():
+    import hy  # installs Hy import hook
+    from thyforce.<domain_with_underscores>.<base_with_underscores> import core
+
+    return core.main()
+```
+
+Then `pyproject.toml` may point to the Python shim:
+
+```toml
+[project.scripts]
+some-command = "thyforce.<domain_with_underscores>.<base_with_underscores>.runner:main"
+```
+
+Recommended `python -m ...` shim pattern:
+
+```python
+# bases/thyforce/<domain>/<base>/__main__.py
+
+import hy
+from thyforce.<domain_with_underscores>.<base_with_underscores> import core
+
+if __name__ == "__main__":
+    core.main()
+```
+
+Use `runner.py` when:
+
+- exposing a command through `[project.scripts]`
+- uv/Python packaging needs a stable Python import target
+- the real CLI implementation is in `core.hy`
+
+Use `__main__.py` when:
+
+- you want `python -m thyforce.<domain>.<base>` to work
+- it is useful for development smoke checks or debugging
+
+A base may have both:
+
+```text
+core.hy      # real implementation
+runner.py    # console-script shim
+__main__.py  # python -m shim
+```
+
+This is acceptable as long as the Python files only delegate. Do not put business/tooling logic in the shims.
+
+Shims are not needed when:
+
+- a Hy module is only imported by other Hy code
+- there is no Python packaging entrypoint
+- there is no need to support `python -m ...`
+- the caller has already imported `hy` and can import Hy modules directly
+
+In Hy source, prefer hyphenated imports:
+
+```hy
+(import thyforce.some-domain.some-base.core :as base_core)
+```
+
+In Python shims, use underscore imports because Python syntax cannot import hyphenated module names:
+
+```python
+from thyforce.some_domain.some_base import core
+```
+
 
 ## Data-oriented design
 
