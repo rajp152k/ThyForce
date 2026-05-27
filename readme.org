@@ -1,0 +1,11 @@
+#+title: ThyForce
+
+* Index
+** Polylith
+ - https://polylith.gitbook.io/polylith
+ - https://davidvujic.github.io/python-polylith-docs/
+** Stack
+ - Hy
+** Dev
+*** Testing
+ - pytest
