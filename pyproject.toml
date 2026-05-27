@@ -10,10 +10,11 @@ dependencies = [
     "toolz>=1.1.0",
 ]
 
+[project.scripts]
+poly-meta = "thyforce.poly_meta.cli.runner:main"
+
 [dependency-groups]
-dev = [
-    "polylith-cli>=1.47.2",
-]
+dev = []
 
 [build-system]
 requires = ["hatchling"]
