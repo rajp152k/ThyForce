@@ -1,10 +1,10 @@
 (import argparse json)
-(import thyforce.poly_meta_config.core :as config_core)
-(import thyforce.poly_meta_workspace.core :as workspace)
-(import thyforce.poly_meta_bricks.core :as bricks)
-(import thyforce.poly_meta_deps.core :as deps)
-(import thyforce.poly_meta_check.core :as check)
-(import thyforce.poly_meta_sync.core :as sync)
+(import thyforce.poly-meta.config.core :as config_core)
+(import thyforce.poly-meta.workspace.core :as workspace)
+(import thyforce.poly-meta.bricks.core :as bricks)
+(import thyforce.poly-meta.deps.core :as deps)
+(import thyforce.poly-meta.check.core :as check)
+(import thyforce.poly-meta.sync.core :as sync)
 
 (defn print-json [data]
   (print (json.dumps data :indent 2 :default str)))

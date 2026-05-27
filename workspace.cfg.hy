@@ -15,5 +15,5 @@
      {"hy"
        {"component-core" ";; {name} component implementation\n"
         "base-core" ";; {name} base implementation\n"
-        "interface" "import hy\nfrom {namespace}.{name} import core\n\n__all__ = [\"core\"]\n"
-        "test" "import hy\nfrom {namespace}.{name} import core\n\n\ndef test_sample():\n    assert core is not None\n"}}})
+        "interface" "import hy\nfrom {namespace}.{import-name} import core\n\n__all__ = [\"core\"]\n"
+        "test" "import hy\nfrom {namespace}.{import-name} import core\n\n\ndef test_sample():\n    assert core is not None\n"}}})

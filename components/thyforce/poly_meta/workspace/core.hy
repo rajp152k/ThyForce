@@ -1,6 +1,6 @@
 (import pathlib [Path])
-(import thyforce.poly_meta_config.core :as config_core)
-(import thyforce.poly_meta_bricks.core :as bricks)
+(import thyforce.poly-meta.config.core :as config_core)
+(import thyforce.poly-meta.bricks.core :as bricks)
 
 (defn load-workspace [[start None]]
   (setv root (config_core.workspace-root start))
