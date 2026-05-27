@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  polylith-and-tests:
+    name: Polylith checks and tests
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHONPATH: bases:components
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Run Polylith workspace check
+        run: uv run poly-meta check
+
+      - name: Run Polylith dependency report
+        run: uv run poly-meta deps
+
+      - name: Run tests
+        run: uv run python -m unittest tests.thyforce.poly_meta.test_poly_meta
