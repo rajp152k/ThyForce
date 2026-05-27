@@ -6,7 +6,7 @@ Guidance for coding agents working in this repository.
 
 This repository follows the Polylith architectural idea using Hy as the primary implementation language.
 
-Polylith is treated here as an architectural model, not as the existing Python `polylith-cli` implementation. `poly-meta` is only one development effort inside this repository that follows these practices; do not make repository-wide conventions depend on `poly-meta` specifically.
+Polylith is treated here as an architectural model, not as the existing Python `polylith-cli` implementation. The repository no longer uses Python `polylith-cli`; all Polylith workspace operations should be done with the in-repo `poly-meta` tooling.
 
 ## Configuration policy
 
@@ -14,10 +14,34 @@ Polylith is treated here as an architectural model, not as the existing Python `
 - Use Hy config files with the suffix `.cfg.hy`.
 - The workspace config is `workspace.cfg.hy` at the repository root.
 - `pyproject.toml` is allowed only where Python/uv packaging requires it.
-- `workspace.toml` exists only for the old Python Polylith bootstrap and should not be expanded for new work.
+- Do not add `workspace.toml`; the old Python Polylith bootstrap has been removed.
 - Configuration should be data-first: maps, vectors/lists, strings, and other Hy data forms.
 - Avoid hardcoding names such as `core.hy`, `__init__.py`, source extensions, path layouts, or templates in behavior when they can come from config data.
 - If something starts as a constant for bootstrapping, prefer making it config-driven in the next iteration rather than spreading the assumption.
+
+## Polylith tooling usage
+
+Use the in-repo `poly-meta` command for Polylith operations.
+
+Do use:
+
+```bash
+uv run poly-meta info
+uv run poly-meta check
+uv run poly-meta deps
+uv run poly-meta create component <domain>/<component>
+uv run poly-meta create base <domain>/<base>
+```
+
+Do not use:
+
+```bash
+uv run poly ...
+```
+
+Do not reintroduce `polylith-cli` or `workspace.toml` unless explicitly requested. If `poly-meta` lacks a feature, implement or extend the relevant Hy component/base rather than falling back to Python Polylith.
+
+`poly-meta` is the repository's local tool for applying Polylith operations. The broader architecture rules in this file remain independent of any one domain or feature.
 
 ## Polylith structure
 
