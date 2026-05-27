@@ -1,5 +1,5 @@
 (import pathlib [Path])
-(import thyforce.poly-meta.config.core :as config_core)
+(import thyforce.poly-meta.config :as config_core)
 
 (defn project-data [root config name]
   {"name" name

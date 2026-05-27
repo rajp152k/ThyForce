@@ -1,14 +1,14 @@
 (import os json tempfile contextlib io)
 (import pathlib [Path])
 (import hy)
-(import thyforce.poly-meta.bricks.core :as bricks)
-(import thyforce.poly-meta.check.core :as check)
+(import thyforce.poly-meta.bricks :as bricks)
+(import thyforce.poly-meta.check :as check)
 (import thyforce.poly-meta.cli.core :as cli)
-(import thyforce.poly-meta.config.core :as config)
-(import thyforce.poly-meta.deps.core :as deps)
-(import thyforce.poly-meta.projects.core :as projects)
-(import thyforce.poly-meta.sync.core :as sync)
-(import thyforce.poly-meta.workspace.core :as workspace)
+(import thyforce.poly-meta.config :as config)
+(import thyforce.poly-meta.deps :as deps)
+(import thyforce.poly-meta.projects :as projects)
+(import thyforce.poly-meta.sync :as sync)
+(import thyforce.poly-meta.workspace :as workspace)
 
 (setv workspace_config #[[
 (setv CONFIG

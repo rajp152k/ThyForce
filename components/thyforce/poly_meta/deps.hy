@@ -1,7 +1,7 @@
 (import re)
 (import pathlib [Path])
-(import thyforce.poly-meta.config.core :as config_core)
-(import thyforce.poly-meta.workspace.core :as workspace)
+(import thyforce.poly-meta.config :as config_core)
+(import thyforce.poly-meta.workspace :as workspace)
 
 (defn source-files [path adapter]
   (setv ext (.get adapter "source-ext" ".hy"))

@@ -1,2 +1,4 @@
-from pkgutil import extend_path
-__path__ = extend_path(__path__, __name__)
+import hy
+from thyforce.poly_meta import core
+
+__all__ = ["core"]

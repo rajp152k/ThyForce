@@ -60,24 +60,26 @@ For this repository, the top-level namespace is:
 thyforce
 ```
 
-Group related bricks under a domain directory. For example, the `poly-meta` development effort is grouped under `poly_meta`:
+Group related bricks under a domain directory when they are genuinely separate reusable capabilities. For the current `poly-meta` development effort, the reusable capability is a single component:
+
+```text
+components/thyforce/poly_meta/
+```
+
+and its CLI entrypoint is a base:
 
 ```text
 bases/thyforce/poly_meta/cli/
-components/thyforce/poly_meta/config/
-components/thyforce/poly_meta/workspace/
-components/thyforce/poly_meta/bricks/
 ```
 
-Do not flatten domain + component names into names like `poly_meta_config` unless there is a compelling reason. Prefer path-like brick names:
+Do not flatten domain + component names into names like `poly_meta_config` unless there is a compelling reason. Prefer path-like brick names when there are truly multiple bricks:
 
 ```text
-poly_meta/config
-poly_meta/workspace
-poly_meta/cli
+some_domain/some_component
+some_domain/some_base
 ```
 
-The grouping directory itself, e.g. `components/thyforce/poly_meta/`, is not a component. The leaf directories are the bricks.
+A directory under `components/<namespace>/` can itself be a component if it has the brick files, e.g. `components/thyforce/poly_meta/core.hy`. A nested grouping directory is only a grouping directory when its leaf children are the actual bricks.
 
 Before creating a new brick, determine its identity explicitly:
 
@@ -107,7 +109,7 @@ __init__.py
 core.hy
 ```
 
-`__init__.py` is the public interface. `core.hy` is implementation.
+`__init__.py` is the public interface. `core.hy` is the public implementation entry module. A brick may contain additional internal Hy modules, e.g. `config.hy`, `workspace.hy`, or `deps.hy`; these are internal modules, not separate Polylith bricks.
 
 ## Hy and imports
 
@@ -250,6 +252,8 @@ projects/<artifact>/
 
 When adding functionality, implement and test the component API first, then wire it into a base.
 
+A Polylith component is not the same thing as every internal module. Prefer one cohesive component with internal modules until a part earns extraction. Split a new component only when it has a stable public interface, an independent reason to change, and a plausible reuse site outside the original component.
+
 Recommended sequence:
 
 ```text
@@ -312,6 +316,8 @@ Tests should be written in Hy. Python test files should not be added unless they
 For a new component/base, avoid the mistakes of early bootstrapping:
 
 - do not start with a flat or temporary namespace if the final domain path is known
+- do not split every internal module into a separate brick; split only around reusable capabilities with independent reasons to change
+- do not create microcomponents that cannot be imagined being used from anywhere else
 - do not create `projects/` entries until a real buildable/deployable artifact is being designed
 - do not hardcode names that should be config/data-driven
 - do not put logic in a CLI base that belongs in a component

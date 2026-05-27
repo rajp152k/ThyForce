@@ -1,6 +1,6 @@
 (import os re)
 (import pathlib [Path])
-(import thyforce.poly-meta.config.core :as config_core)
+(import thyforce.poly-meta.config :as config_core)
 
 (defn format-template [template data]
   (.format template #** data))
