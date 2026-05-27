@@ -5,11 +5,11 @@
 
 (defn workspace-root [[start None] [config-name DEFAULT-CONFIG-NAME]]
   (setv current (.resolve (Path (or start (os.getcwd)))))
+  (when (.exists (/ current config-name))
+    (return current))
   (for [candidate (list current.parents)]
     (when (.exists (/ candidate config-name))
       (return candidate)))
-  (when (.exists (/ current config-name))
-    (return current))
   (raise (FileNotFoundError f"Cannot find {config-name}")))
 
 (defn load-config [[root None]]

@@ -40,7 +40,7 @@
   (setv interface-file (.get adapter "interface-file" "__init__.py"))
   (setv test-file (.get adapter "test-file" "test_core.hy"))
   (write-file (/ target module-file)
-              (template config lang (if (= kind (config_core.get-in config ["paths" "bases"] "bases")) "base-core" "component-core"))
+              (format-template (template config lang (if (= kind (config_core.get-in config ["paths" "bases"] "bases")) "base-core" "component-core")) data)
               overwrite)
   (write-file (/ target interface-file) (format-template (template config lang "interface") data) overwrite)
   (write-file (/ test-target test-file) (format-template (template config lang "test") data) overwrite)
