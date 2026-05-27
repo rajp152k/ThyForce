@@ -38,4 +38,4 @@ jobs:
         run: uv run poly-meta deps
 
       - name: Run tests
-        run: uv run python -m unittest tests.thyforce.poly_meta.test_poly_meta
+        run: uv run hy tests/thyforce/poly_meta/test_poly_meta.hy

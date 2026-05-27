@@ -132,7 +132,7 @@ from thyforce.some_domain.some_component import core
 
 ## Python / Hy interop and shims
 
-Small Python shims are acceptable when Python packaging, console entrypoints, or `python -m ...` execution require them. Keep these minimal. Functional implementation should live in Hy components/bases.
+Small Python shims are acceptable when Python packaging, console entrypoints, or `python -m ...` execution require them. Keep these minimal. All functional code, including tests, should live in Hy. Python remains only for interop/delegation shims.
 
 Why shims may be needed:
 
@@ -305,7 +305,7 @@ Tests should cover both happy paths and meaningful failure cases, especially:
 - dependency parser edge cases
 - CLI output shape
 
-Python `unittest` tests are acceptable while bootstrapping Hy tooling. Hy-native tests may be added later, but do not block practical coverage.
+Tests should be written in Hy. Python test files should not be added unless they are explicitly testing Python interop shim behavior. Even then, keep the Python part minimal and put functional assertions in Hy where possible.
 
 ## Quality expectations for new bricks
 
@@ -341,5 +341,5 @@ For the current `poly-meta` development effort:
 uv run poly-meta check
 PYTHONPATH=bases:components uv run python -m thyforce.poly_meta.cli info
 PYTHONPATH=bases:components uv run python -m thyforce.poly_meta.cli deps
-PYTHONPATH=bases:components uv run python -m unittest tests.thyforce.poly_meta.test_poly_meta
+PYTHONPATH=bases:components uv run hy tests/thyforce/poly_meta/test_poly_meta.hy
 ```
