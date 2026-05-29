@@ -269,6 +269,8 @@ Recommended sequence:
 
 ## Testing layout
 
+Use `tests/` as the repository test root. Do not create or use a singular `test/` root.
+
 Tests should mirror the namespace/domain hierarchy:
 
 ```text

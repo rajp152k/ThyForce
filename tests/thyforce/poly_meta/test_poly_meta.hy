@@ -14,7 +14,7 @@
 (setv CONFIG
   {"tool" "poly-meta-test"
    "namespace" "acme"
-   "paths" {"bases" "bases" "components" "components" "projects" "projects" "tests" "test"}
+   "paths" {"bases" "bases" "components" "components" "projects" "projects" "tests" "tests"}
    "layout" {"theme" "loose"
              "brick-path" "{kind}/{namespace}/{name}"
              "test-path" "{tests}/{kind}/{namespace}/{name}"}
@@ -82,7 +82,7 @@
     (assert= (Path (get result "path")) brick-dir)
     (assert= (.read_text (/ brick-dir "core.hy") :encoding "utf-8") ";; component poly_meta/config\n(import os)\n")
     (assert-in "from acme.poly_meta.config import core" (.read_text (/ brick-dir "__init__.py") :encoding "utf-8"))
-    (assert (.exists (/ root "test" "components" "acme" "poly_meta" "config" "test_core.hy")))
+    (assert (.exists (/ root "tests" "components" "acme" "poly_meta" "config" "test_core.hy")))
     (finally (.cleanup td))))
 
 (defn test-create-nested-base []

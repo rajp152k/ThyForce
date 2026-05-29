@@ -1,7 +1,7 @@
 (setv CONFIG
   {"tool" "poly-meta"
    "namespace" "thyforce"
-   "paths" {"bases" "bases" "components" "components" "projects" "projects" "tests" "test"}
+   "paths" {"bases" "bases" "components" "components" "projects" "projects" "tests" "tests"}
    "layout" {"theme" "loose"
              "brick-path" "{kind}/{namespace}/{name}"
              "test-path" "{tests}/{kind}/{namespace}/{name}"}
