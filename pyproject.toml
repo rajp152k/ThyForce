@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-poly-meta = "thyforce.poly_meta.cli.runner:main"
+polhy = "thyforce.polhy.cli.runner:main"
 
 [dependency-groups]
 dev = []

@@ -1,10 +1,10 @@
-(import thyforce.poly-meta.workspace :as workspace)
-(import thyforce.poly-meta.bricks :as bricks)
-(import thyforce.poly-meta.deps :as deps)
-(import thyforce.poly-meta.check :as check)
-(import thyforce.poly-meta.sync :as sync)
-(import thyforce.poly-meta.projects :as projects)
-(import thyforce.poly-meta.config :as config)
+(import thyforce.polhy.workspace :as workspace)
+(import thyforce.polhy.bricks :as bricks)
+(import thyforce.polhy.deps :as deps)
+(import thyforce.polhy.check :as check)
+(import thyforce.polhy.sync :as sync)
+(import thyforce.polhy.projects :as projects)
+(import thyforce.polhy.config :as config)
 
 (defn info [[start None]]
   (workspace.info start))

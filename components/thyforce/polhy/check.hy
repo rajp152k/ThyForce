@@ -1,4 +1,4 @@
-(import thyforce.poly-meta.workspace :as workspace)
+(import thyforce.polhy.workspace :as workspace)
 
 (defn run [[start None]]
   (setv info (workspace.info start))

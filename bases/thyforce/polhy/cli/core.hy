@@ -1,11 +1,11 @@
 (import argparse json)
-(import thyforce.poly-meta.core :as engine)
+(import thyforce.polhy.core :as engine)
 
 (defn print-json [data]
   (print (json.dumps data :indent 2 :default str)))
 
 (defn create-parser []
-  (setv parser (argparse.ArgumentParser :prog "poly-meta"))
+  (setv parser (argparse.ArgumentParser :prog "polhy"))
   (setv sub (.add_subparsers parser :dest "command" :required True))
   (.add_parser sub "info")
   (.add_parser sub "deps")

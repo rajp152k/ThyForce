@@ -1,18 +1,18 @@
 (import os json tempfile contextlib io)
 (import pathlib [Path])
 (import hy)
-(import thyforce.poly-meta.bricks :as bricks)
-(import thyforce.poly-meta.check :as check)
-(import thyforce.poly-meta.cli.core :as cli)
-(import thyforce.poly-meta.config :as config)
-(import thyforce.poly-meta.deps :as deps)
-(import thyforce.poly-meta.projects :as projects)
-(import thyforce.poly-meta.sync :as sync)
-(import thyforce.poly-meta.workspace :as workspace)
+(import thyforce.polhy.bricks :as bricks)
+(import thyforce.polhy.check :as check)
+(import thyforce.polhy.cli.core :as cli)
+(import thyforce.polhy.config :as config)
+(import thyforce.polhy.deps :as deps)
+(import thyforce.polhy.projects :as projects)
+(import thyforce.polhy.sync :as sync)
+(import thyforce.polhy.workspace :as workspace)
 
 (setv workspace_config #[[
 (setv CONFIG
-  {"tool" "poly-meta-test"
+  {"tool" "polhy-test"
    "namespace" "acme"
    "paths" {"bases" "bases" "components" "components" "projects" "projects" "test-root" "tests"}
    "layout" {"theme" "loose"
@@ -76,21 +76,21 @@
   (setv [td root] (make-workspace))
   (try
     (setv cfg (config.load-config root))
-    (setv result (bricks.create-brick root cfg "components" "poly_meta/config"))
-    (setv brick-dir (/ root "components" "acme" "poly_meta" "config"))
-    (assert= (get result "brick") "poly_meta/config")
+    (setv result (bricks.create-brick root cfg "components" "polhy/config"))
+    (setv brick-dir (/ root "components" "acme" "polhy" "config"))
+    (assert= (get result "brick") "polhy/config")
     (assert= (Path (get result "path")) brick-dir)
-    (assert= (.read_text (/ brick-dir "core.hy") :encoding "utf-8") ";; component poly_meta/config\n(import os)\n")
-    (assert-in "from acme.poly_meta.config import core" (.read_text (/ brick-dir "__init__.py") :encoding "utf-8"))
-    (assert (.exists (/ root "tests" "components" "acme" "poly_meta" "config" "test_core.hy")))
+    (assert= (.read_text (/ brick-dir "core.hy") :encoding "utf-8") ";; component polhy/config\n(import os)\n")
+    (assert-in "from acme.polhy.config import core" (.read_text (/ brick-dir "__init__.py") :encoding "utf-8"))
+    (assert (.exists (/ root "tests" "components" "acme" "polhy" "config" "test_core.hy")))
     (finally (.cleanup td))))
 
 (defn test-create-nested-base []
   (setv [td root] (make-workspace))
   (try
     (setv cfg (config.load-config root))
-    (bricks.create-brick root cfg "bases" "poly_meta/cli")
-    (assert= (.read_text (/ root "bases" "acme" "poly_meta" "cli" "core.hy") :encoding "utf-8") ";; base poly_meta/cli\n(require hyrule [->])\n")
+    (bricks.create-brick root cfg "bases" "polhy/cli")
+    (assert= (.read_text (/ root "bases" "acme" "polhy" "cli" "core.hy") :encoding "utf-8") ";; base polhy/cli\n(require hyrule [->])\n")
     (finally (.cleanup td))))
 
 (defn test-create-brick-overwrite []
@@ -109,22 +109,22 @@
   (setv [td root] (make-workspace))
   (try
     (setv cfg (config.load-config root))
-    (bricks.create-brick root cfg "components" "poly_meta/config")
+    (bricks.create-brick root cfg "components" "polhy/config")
     (bricks.create-brick root cfg "components" "plain")
-    (bricks.create-brick root cfg "bases" "poly_meta/cli")
-    (assert= (sorted (list (map (fn [b] (get b "name")) (bricks.list-bricks root cfg "components")))) ["plain" "poly_meta/config"])
+    (bricks.create-brick root cfg "bases" "polhy/cli")
+    (assert= (sorted (list (map (fn [b] (get b "name")) (bricks.list-bricks root cfg "components")))) ["plain" "polhy/config"])
     (setv info (workspace.info root))
     (assert= (get info "namespace") "acme")
-    (assert= (list (map (fn [b] (get b "name")) (get info "bases"))) ["poly_meta/cli"])
+    (assert= (list (map (fn [b] (get b "name")) (get info "bases"))) ["polhy/cli"])
     (finally (.cleanup td))))
 
 (defn test-deps-check-sync-project-and-cli []
   (setv [td root] (make-workspace))
   (try
     (setv cfg (config.load-config root))
-    (bricks.create-brick root cfg "components" "poly_meta/config")
+    (bricks.create-brick root cfg "components" "polhy/config")
     (assert= (deps.hy-imports "(import os json)\n(require hyrule [->])\n") ["os json" "hyrule"])
-    (assert= (get (deps.dependency-report root) "poly_meta/config") ["os"])
+    (assert= (get (deps.dependency-report root) "polhy/config") ["os"])
     (assert (get (check.run root) "ok"))
     (assert (get (sync.run root) "ok"))
     (assert= (Path (get (projects.project-data root cfg "service") "root")) (/ root "projects" "service"))

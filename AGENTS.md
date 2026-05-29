@@ -6,7 +6,7 @@ Guidance for coding agents working in this repository.
 
 This repository follows the Polylith architectural idea using Hy as the primary implementation language.
 
-Polylith is treated here as an architectural model, not as the existing Python `polylith-cli` implementation. The repository no longer uses Python `polylith-cli`; all Polylith workspace operations should be done with the in-repo `poly-meta` tooling.
+Polylith is treated here as an architectural model, not as the existing Python `polylith-cli` implementation. The repository no longer uses Python `polylith-cli`; all Polylith workspace operations should be done with the in-repo `polhy` tooling.
 
 ## Configuration policy
 
@@ -21,16 +21,16 @@ Polylith is treated here as an architectural model, not as the existing Python `
 
 ## Polylith tooling usage
 
-Use the in-repo `poly-meta` command for Polylith operations.
+Use the in-repo `polhy` command for Polylith operations.
 
 Do use:
 
 ```bash
-uv run poly-meta info
-uv run poly-meta check
-uv run poly-meta deps
-uv run poly-meta create component <domain>/<component>
-uv run poly-meta create base <domain>/<base>
+uv run polhy info
+uv run polhy check
+uv run polhy deps
+uv run polhy create component <domain>/<component>
+uv run polhy create base <domain>/<base>
 ```
 
 Do not use:
@@ -39,9 +39,9 @@ Do not use:
 uv run poly ...
 ```
 
-Do not reintroduce `polylith-cli` or `workspace.toml` unless explicitly requested. If `poly-meta` lacks a feature, implement or extend the relevant Hy component/base rather than falling back to Python Polylith.
+Do not reintroduce `polylith-cli` or `workspace.toml` unless explicitly requested. If `polhy` lacks a feature, implement or extend the relevant Hy component/base rather than falling back to Python Polylith.
 
-`poly-meta` is the repository's local tool for applying Polylith operations. The broader architecture rules in this file remain independent of any one domain or feature.
+`polhy` is the repository's local tool for applying Polylith operations. The broader architecture rules in this file remain independent of any one domain or feature.
 
 ## Polylith structure
 
@@ -60,26 +60,26 @@ For this repository, the top-level namespace is:
 thyforce
 ```
 
-Group related bricks under a domain directory when they are genuinely separate reusable capabilities. For the current `poly-meta` development effort, the reusable capability is a single component:
+Group related bricks under a domain directory when they are genuinely separate reusable capabilities. For the current `polhy` development effort, the reusable capability is a single component:
 
 ```text
-components/thyforce/poly_meta/
+components/thyforce/polhy/
 ```
 
 and its CLI entrypoint is a base:
 
 ```text
-bases/thyforce/poly_meta/cli/
+bases/thyforce/polhy/cli/
 ```
 
-Do not flatten domain + component names into names like `poly_meta_config` unless there is a compelling reason. Prefer path-like brick names when there are truly multiple bricks:
+Do not flatten domain + component names into names like `polhy_config` unless there is a compelling reason. Prefer path-like brick names when there are truly multiple bricks:
 
 ```text
 some_domain/some_component
 some_domain/some_base
 ```
 
-A directory under `components/<namespace>/` can itself be a component if it has the brick files, e.g. `components/thyforce/poly_meta/core.hy`. A nested grouping directory is only a grouping directory when its leaf children are the actual bricks.
+A directory under `components/<namespace>/` can itself be a component if it has the brick files, e.g. `components/thyforce/polhy/core.hy`. A nested grouping directory is only a grouping directory when its leaf children are the actual bricks.
 
 Before creating a new brick, determine its identity explicitly:
 
@@ -280,10 +280,10 @@ tests/thyforce/<domain>/
 For example:
 
 ```text
-tests/thyforce/poly_meta/
+tests/thyforce/polhy/
 ```
 
-Do not put tests for a domain in a flat unrelated path like `tests/poly_meta/`.
+Do not put tests for a domain in a flat unrelated path like `tests/polhy/`.
 
 For a component such as:
 
@@ -343,11 +343,11 @@ feature/language-agnostic-polylith
 
 ## Useful current smoke checks
 
-For the current `poly-meta` development effort:
+For the current `polhy` development effort:
 
 ```bash
-uv run poly-meta check
-PYTHONPATH=bases:components uv run python -m thyforce.poly_meta.cli info
-PYTHONPATH=bases:components uv run python -m thyforce.poly_meta.cli deps
-PYTHONPATH=bases:components uv run hy tests/thyforce/poly_meta/test_poly_meta.hy
+uv run polhy check
+PYTHONPATH=bases:components uv run python -m thyforce.polhy.cli info
+PYTHONPATH=bases:components uv run python -m thyforce.polhy.cli deps
+PYTHONPATH=bases:components uv run hy tests/thyforce/polhy/test_polhy.hy
 ```

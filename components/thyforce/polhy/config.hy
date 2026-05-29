@@ -15,9 +15,9 @@
 (defn load-config [[root None]]
   (setv root-path (workspace-root root))
   (setv config-path (/ root-path DEFAULT-CONFIG-NAME))
-  (setv loader (type "ConfigLoader" #() {"path" (str config-path) "name" "thyforce_poly_meta_workspace_config"}))
-  (setv code (hy.importer._hy_source_to_code (loader) (.read_bytes config-path) (str config-path) "thyforce_poly_meta_workspace_config"))
-  (setv ns {"__name__" "thyforce_poly_meta_workspace_config"})
+  (setv loader (type "ConfigLoader" #() {"path" (str config-path) "name" "thyforce_polhy_workspace_config"}))
+  (setv code (hy.importer._hy_source_to_code (loader) (.read_bytes config-path) (str config-path) "thyforce_polhy_workspace_config"))
+  (setv ns {"__name__" "thyforce_polhy_workspace_config"})
   (exec code ns)
   (get ns "CONFIG"))
 

@@ -1,5 +1,5 @@
 (setv CONFIG
-  {"tool" "poly-meta"
+  {"tool" "polhy"
    "namespace" "thyforce"
    "paths" {"bases" "bases" "components" "components" "projects" "projects" "test-root" "tests"}
    "layout" {"theme" "loose"
