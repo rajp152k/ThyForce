@@ -37,5 +37,8 @@ jobs:
       - name: Run Polylith dependency report
         run: uv run polhy deps
 
-      - name: Run tests
+      - name: Run polhy tests
         run: uv run hy tests/thyforce/polhy/test_polhy.hy
+
+      - name: Run spec tests
+        run: uv run hy tests/thyforce/spec/test_spec.hy

@@ -214,6 +214,39 @@ from thyforce.some_domain.some_base import core
 ```
 
 
+## Spec and validation direction
+
+Validation is a foundational data capability and should remain separate from configuration management.
+
+Use the `thyforce/spec` component for predicate-based specs:
+
+```text
+components/thyforce/spec/
+tests/thyforce/spec/
+```
+
+A spec is fundamentally a predicate: a function of one argument returning true/false.
+
+```hy
+(defn non-empty-string? [value]
+  (and (spec.str? value) (> (len value) 0)))
+```
+
+The `genspec` macro may be used to generate nested map predicates from Hy data forms:
+
+```hy
+(require thyforce.spec.core [genspec])
+(import thyforce.spec.core :as spec)
+
+(setv workspace?
+  (genspec {"namespace" spec.str?
+            "paths" {"components" spec.str?
+                     "bases" spec.str?
+                     "test-root" spec.str?}}))
+```
+
+Configuration management should later build on top of this validation backend. Do not embed config-file, env-var, secret, or application initialization concerns into the spec component.
+
 ## Data-oriented design
 
 Code in this repository should be data-oriented:
@@ -350,4 +383,5 @@ uv run polhy check
 PYTHONPATH=bases:components uv run python -m thyforce.polhy.cli info
 PYTHONPATH=bases:components uv run python -m thyforce.polhy.cli deps
 PYTHONPATH=bases:components uv run hy tests/thyforce/polhy/test_polhy.hy
+PYTHONPATH=bases:components uv run hy tests/thyforce/spec/test_spec.hy
 ```
