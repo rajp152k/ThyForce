@@ -72,5 +72,5 @@
 
 (defmacro genspec [spec-form]
   `(do
-     (import thyforce.spec.core :as --thyforce-spec-core)
-     (--thyforce-spec-core.genspec* ~spec-form)))
+     (import thyforce.spec.core :as _thyforce_spec_core)
+     (_thyforce_spec_core.genspec* ~spec-form)))
