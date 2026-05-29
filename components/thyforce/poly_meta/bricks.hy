@@ -23,9 +23,9 @@
 
 (defn test-path [root config kind name]
   (setv ns (get config "namespace"))
-  (setv tests (config_core.get-in config ["paths" "tests"] "test"))
+  (setv test-root (config_core.get-in config ["paths" "test-root"] "tests"))
   (setv pattern (config_core.get-in config ["layout" "test-path"]))
-  (/ root (format-template pattern {"kind" kind "namespace" ns "name" name "tests" tests})))
+  (/ root (format-template pattern {"kind" kind "namespace" ns "name" name "test-root" test-root})))
 
 (defn template [config language key]
   (config_core.get-in config ["templates" language key] ""))

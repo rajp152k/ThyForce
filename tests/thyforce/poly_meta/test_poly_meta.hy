@@ -14,10 +14,10 @@
 (setv CONFIG
   {"tool" "poly-meta-test"
    "namespace" "acme"
-   "paths" {"bases" "bases" "components" "components" "projects" "projects" "tests" "tests"}
+   "paths" {"bases" "bases" "components" "components" "projects" "projects" "test-root" "tests"}
    "layout" {"theme" "loose"
              "brick-path" "{kind}/{namespace}/{name}"
-             "test-path" "{tests}/{kind}/{namespace}/{name}"}
+             "test-path" "{test-root}/{kind}/{namespace}/{name}"}
    "language" {"default" "hy"
                "adapters" {"hy" {"source-ext" ".hy"
                                     "test-ext" ".hy"
