@@ -1,9 +1,9 @@
-"""Generic immutable-ish workspace/document state helpers.
+"Generic immutable-ish workspace/document state helpers.
 
 The helpers here are deliberately framework-level and language-agnostic. They
 store LSP text documents as plain dictionaries under the `documents` state key and
 return replacement state maps instead of mutating the caller's state in place.
-"""
+"
 
 (setv POSITION-ENCODING-UTF8 "utf-8")
 (setv POSITION-ENCODING-UTF16 "utf-16")

@@ -1,4 +1,4 @@
-"""Small JSON-RPC 2.0 message constructors used by the LSP engine."""
+"Small JSON-RPC 2.0 message constructors used by the LSP engine."
 
 (import json)
 

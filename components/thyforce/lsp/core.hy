@@ -1,4 +1,4 @@
-"""Public entry module for the generic LSP engine.
+"Public entry module for the generic LSP engine.
 
 The engine is a data-first Language Server Protocol engine-generation framework:
 registries and server state are plain dictionaries, dispatch threads state
@@ -16,7 +16,7 @@ Submodules form the public surface and are re-exported here:
 Macros (`defregistry`, `on-request`, `on-notification`, `on-command`) must be
 required directly from `thyforce.lsp.spec`, since Hy macros are required, not
 imported.
-"""
+"
 
 (import thyforce.lsp.spec :as spec)
 (import thyforce.lsp.server :as server)

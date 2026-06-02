@@ -1,9 +1,9 @@
-"""LSP stdio framing and serving helpers.
+"LSP stdio framing and serving helpers.
 
 Transport is intentionally small and separate from server generation. Any code
 that can provide parsed JSON-RPC dictionaries can reuse `thyforce.lsp.server.dispatch`;
 stdio just adds Language Server Protocol `Content-Length` framing.
-"""
+"
 
 (import json)
 (import thyforce.lsp.jsonrpc [error-response PARSE-ERROR dump-message])

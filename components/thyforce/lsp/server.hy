@@ -1,4 +1,4 @@
-"""Data-oriented LSP server generation and JSON-RPC dispatch."""
+"Data-oriented LSP server generation and JSON-RPC dispatch."
 
 (import json)
 (import thyforce.lsp.jsonrpc [response error-response PARSE-ERROR METHOD-NOT-FOUND INVALID-REQUEST INTERNAL-ERROR])

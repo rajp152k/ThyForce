@@ -1,9 +1,9 @@
-"""Data model and Hy macros for LSP registries.
+"Data model and Hy macros for LSP registries.
 
 The public constructors return ordinary Python dictionaries. Macros are only a
 compact authoring layer over the same dictionaries; they do not hide runtime
 registration side effects.
-"""
+"
 
 (defn _handler-name [handler]
   "Return a stable registry name for a handler reference."

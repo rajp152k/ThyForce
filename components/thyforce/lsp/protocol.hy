@@ -1,8 +1,8 @@
-"""Small Language Server Protocol data helpers.
+"Small Language Server Protocol data helpers.
 
 The engine intentionally keeps protocol objects as dictionaries. These helpers
 cover common shapes without forcing a generated type layer on framework users.
-"""
+"
 
 (import thyforce.lsp.jsonrpc [notification])
 
