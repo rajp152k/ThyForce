@@ -25,7 +25,11 @@
   (cond
     (= command "info") (print-json (engine.info))
     (= command "deps") (print-json (engine.dependency-report))
-    (= command "check") (print-json (engine.check-workspace))
+    (= command "check")
+      (do
+        (setv result (engine.check-workspace))
+        (print-json result)
+        (when (not (get result "ok")) (sys.exit 1)))
     (= command "sync") (print-json (engine.sync-workspace))
     (= command "test")
       (do

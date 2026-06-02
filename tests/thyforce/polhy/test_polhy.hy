@@ -135,7 +135,6 @@
     (assert= (get report "demo") {"bricks" ["polhy/config"] "libs" ["hy"]})
     (assert (get (check.run root) "ok"))
     (assert (get (sync.run root) "ok"))
-    (assert= (Path (get (projects.project-data root cfg "service") "root")) (/ root "projects" "service"))
     (setv old-cwd (os.getcwd))
     (try
       (os.chdir root)

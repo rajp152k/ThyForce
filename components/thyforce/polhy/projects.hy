@@ -43,11 +43,6 @@ dependencies. Bases stay bases; a project *includes* bricks, it does not own cod
 (defn load-project-def [project]
   (config_core.load-data (/ (Path (get project "root")) PROJECT-FILE) "PROJECT"))
 
-(defn project-data [root config name]
-  {"name" name
-   "root" (str (/ (projects-dir root config) name))
-   "namespace" (get config "namespace")})
-
 ;; ---------------------------------------------------------------------------
 ;; closure + libraries
 ;; ---------------------------------------------------------------------------

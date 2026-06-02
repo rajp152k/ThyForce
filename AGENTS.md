@@ -28,10 +28,13 @@ Do use:
 
 ```bash
 uvx --from ./projects/polhy polhy info
-uvx --from ./projects/polhy polhy check
-uvx --from ./projects/polhy polhy deps
+uvx --from ./projects/polhy polhy check     # validates workspace + project defs/drift; nonzero exit on failure
+uvx --from ./projects/polhy polhy deps      # form-based brick/lib dependency report
+uvx --from ./projects/polhy polhy test      # discover + run all suites under the workspace venv Python
+uvx --from ./projects/polhy polhy sync      # regenerate each project's pyproject from its project.cfg.hy
 uvx --from ./projects/polhy polhy create component <domain>/<component>
 uvx --from ./projects/polhy polhy create base <domain>/<base>
+uvx --from ./projects/polhy polhy create project <name>
 ```
 
 Tip: alias it for interactive use — `alias polhy='uvx --from ./projects/polhy polhy'`.
@@ -256,6 +259,19 @@ The `genspec` macro may be used to generate nested map predicates from Hy data f
                      "bases" spec.str?
                      "test-root" spec.str?}}))
 ```
+
+Specs stay callable predicates, so `(workspace? value)` returns a bool. For
+structured errors, `validate` walks the spec and returns path-precise problems:
+
+```hy
+(spec.validate workspace? {"namespace" 1 "paths" {"components" "c"}})
+;; => {"ok" False ... "problems" [{"path" ["namespace"] "pred" "str?" ...}
+;;                                {"path" ["paths" "bases"] "pred" "required" ...} ...]}
+```
+
+Use `valid?` / bare predicates for fast boolean checks at boundaries; use
+`validate` (or `explain`) when you need to report *which* field failed *which*
+predicate. `named` labels a leaf predicate for readable traces.
 
 Configuration management should later build on top of this validation backend. Do not embed config-file, env-var, secret, or application initialization concerns into the spec component.
 
