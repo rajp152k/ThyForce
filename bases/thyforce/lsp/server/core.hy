@@ -7,8 +7,8 @@ over stdio using the lsp engine's Content-Length framing. All behavior lives in 
 
 (import sys)
 (import argparse)
-(import thyforce.service.core :as service)
-(import thyforce.lsp.stdio :as stdio)
+(import thyforce.lsp.providers.core :as service)
+(import thyforce.lsp.engine.stdio :as stdio)
 
 (setv VERSION "0.1.0")
 

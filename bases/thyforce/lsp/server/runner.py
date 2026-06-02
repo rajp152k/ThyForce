@@ -1,5 +1,5 @@
 def main():
     import hy
-    from thyforce.service.cli import core
+    from thyforce.lsp.server import core
 
     return core.main()

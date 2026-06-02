@@ -8,17 +8,17 @@ managed by the engine's workspace helpers. `make-server` assembles a runnable
 chyls server.
 "
 
-(import thyforce.lsp.server :as engine)
-(import thyforce.lsp.protocol :as proto)
-(import thyforce.lsp.workspace :as ws)
-(require thyforce.lsp.spec [defregistry on-request on-notification on-command])
+(import thyforce.lsp.engine.server :as engine)
+(import thyforce.lsp.engine.protocol :as proto)
+(import thyforce.lsp.engine.workspace :as ws)
+(require thyforce.lsp.engine.spec [defregistry on-request on-notification on-command])
 
-(import thyforce.analysis.index :as index)
-(import thyforce.analysis.word :as word)
-(import thyforce.analysis.completion-context :as cc)
-(import thyforce.analysis.semantic :as semantic)
-(import thyforce.analysis.folding :as folding)
-(import thyforce.analysis.model :as model)
+(import thyforce.lsp.analyzer.index :as index)
+(import thyforce.lsp.analyzer.word :as word)
+(import thyforce.lsp.analyzer.completion-context :as cc)
+(import thyforce.lsp.analyzer.semantic :as semantic)
+(import thyforce.lsp.analyzer.folding :as folding)
+(import thyforce.lsp.analyzer.model :as model)
 
 (setv REINDEX-COMMAND "hyground.reindexWorkspace")
 

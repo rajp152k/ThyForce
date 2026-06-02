@@ -6,8 +6,8 @@ None, which lets callers plug in position-aware scoped resolution. A semantic
 token is a map {\"line\" \"start\" \"length\" \"token-type\"}.
 "
 
-(import thyforce.analysis.model :as model)
-(import thyforce.analysis.word [WORD-RE])
+(import thyforce.lsp.analyzer.model :as model)
+(import thyforce.lsp.analyzer.word [WORD-RE])
 
 (setv SEMANTIC-TOKEN-TYPES
   ["namespace" "class" "function" "macro" "variable" "keyword" "string" "number" "operator" "comment"])

@@ -1,5 +1,5 @@
 import hy
-from thyforce.service.cli import core
+from thyforce.lsp.server import core
 
 if __name__ == "__main__":
     core.main()

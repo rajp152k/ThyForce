@@ -45,7 +45,7 @@ typo). Author as an `eval` fan-out over the module list.
 
 ## Deferred features (tracked, not blocking)
 
-- **core-docs from Hy metadata.** `analysis/core-docs.hy` is an explicit, hand-
+- **core-docs from Hy metadata.** `lsp/analyzer/core-docs.hy` is an explicit, hand-
   maintained table of Hy core-form signatures/docs (matches HyGround's parity
   baseline). Hy compiler/pattern macros mostly expose no useful `__doc__`, which
   is why the table exists. A future improvement is to generate this data from an

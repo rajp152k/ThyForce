@@ -44,7 +44,7 @@ as you hit new ones. Each entry: the trap, why, and the fix.
   `:as alias` follows the name inline. Nesting brackets
   (`[name [other :as alias]]`) is a parse error.
 
-- **Hyphen ↔ underscore:** `(import thyforce.analysis.completion-context)` resolves
+- **Hyphen ↔ underscore:** `(import thyforce.lsp.analyzer.completion-context)` resolves
   to the file `completion_context.hy`. Filenames use underscores; imports may use
   hyphens (Hy mangles them).
 

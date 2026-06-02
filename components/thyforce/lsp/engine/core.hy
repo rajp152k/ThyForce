@@ -14,16 +14,16 @@ Submodules form the public surface and are re-exported here:
 - `protocol`  LSP data-shape helpers (positions, ranges, diagnostics, capabilities)
 
 Macros (`defregistry`, `on-request`, `on-notification`, `on-command`) must be
-required directly from `thyforce.lsp.spec`, since Hy macros are required, not
+required directly from `thyforce.lsp.engine.spec`, since Hy macros are required, not
 imported.
 "
 
-(import thyforce.lsp.spec :as spec)
-(import thyforce.lsp.server :as server)
-(import thyforce.lsp.jsonrpc :as jsonrpc)
-(import thyforce.lsp.stdio :as stdio)
-(import thyforce.lsp.workspace :as workspace)
-(import thyforce.lsp.protocol :as protocol)
+(import thyforce.lsp.engine.spec :as spec)
+(import thyforce.lsp.engine.server :as server)
+(import thyforce.lsp.engine.jsonrpc :as jsonrpc)
+(import thyforce.lsp.engine.stdio :as stdio)
+(import thyforce.lsp.engine.workspace :as workspace)
+(import thyforce.lsp.engine.protocol :as protocol)
 
 ;; Most-used entry points, surfaced flat for ergonomics.
 (setv make-server server.make-server)

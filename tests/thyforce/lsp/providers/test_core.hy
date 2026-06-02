@@ -1,6 +1,6 @@
 (import hy)
-(import thyforce.service.core :as service)
-(import thyforce.lsp.server :as engine)
+(import thyforce.lsp.providers.core :as service)
+(import thyforce.lsp.engine.server :as engine)
 
 (setv URI "file:///workspace/main.hy")
 

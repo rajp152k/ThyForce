@@ -14,7 +14,7 @@ dependencies = [
 
 [project.scripts]
 polhy = "thyforce.polhy.cli.runner:main"
-hyground = "thyforce.service.cli.runner:main"
+hyground = "thyforce.lsp.server.runner:main"
 
 [dependency-groups]
 dev = []

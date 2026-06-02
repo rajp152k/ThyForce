@@ -158,23 +158,23 @@ functions before serving.
 (defmacro defregistry [name #* specs]
   "Define a registry value from inline feature specs."
   `(do
-     (import thyforce.lsp.spec)
-     (setv ~name (thyforce.lsp.spec.registry ~@specs))))
+     (import thyforce.lsp.engine.spec)
+     (setv ~name (thyforce.lsp.engine.spec.registry ~@specs))))
 
 (defmacro on-request [method handler #* args]
   "Macro sugar for a request spec; stores the handler symbol as data."
   `(do
-     (import thyforce.lsp.spec)
-     (thyforce.lsp.spec.request ~method ~(str handler) ~@args)))
+     (import thyforce.lsp.engine.spec)
+     (thyforce.lsp.engine.spec.request ~method ~(str handler) ~@args)))
 
 (defmacro on-notification [method handler #* args]
   "Macro sugar for a notification spec; stores the handler symbol as data."
   `(do
-     (import thyforce.lsp.spec)
-     (thyforce.lsp.spec.notification ~method ~(str handler) ~@args)))
+     (import thyforce.lsp.engine.spec)
+     (thyforce.lsp.engine.spec.notification ~method ~(str handler) ~@args)))
 
 (defmacro on-command [name handler #* args]
   "Macro sugar for a command spec; stores the handler symbol as data."
   `(do
-     (import thyforce.lsp.spec)
-     (thyforce.lsp.spec.command ~name ~(str handler) ~@args)))
+     (import thyforce.lsp.engine.spec)
+     (thyforce.lsp.engine.spec.command ~name ~(str handler) ~@args)))

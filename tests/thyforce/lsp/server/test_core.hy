@@ -1,7 +1,7 @@
 (import hy)
 (import io)
-(import thyforce.service.cli.core :as cli)
-(import thyforce.lsp.stdio :as stdio)
+(import thyforce.lsp.server.core :as cli)
+(import thyforce.lsp.engine.stdio :as stdio)
 
 (defn assert= [actual expected]
   (assert (= actual expected) f"Expected {expected !r}, got {actual !r}"))

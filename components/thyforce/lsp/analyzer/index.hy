@@ -17,11 +17,11 @@ are lightweight classes kept close to the source for fidelity.
 (import hy.compiler [hy-compile])
 (import hy.models [Dict :as HyDict Expression Keyword List :as HyList String Symbol])
 
-(import thyforce.analysis.model :as model)
-(import thyforce.analysis.core-docs [CORE-DOCS])
-(import thyforce.analysis.uri :as uris)
-(import thyforce.analysis.config [load-config])
-(import thyforce.analysis.resolver
+(import thyforce.lsp.analyzer.model :as model)
+(import thyforce.lsp.analyzer.core-docs [CORE-DOCS])
+(import thyforce.lsp.analyzer.uri :as uris)
+(import thyforce.lsp.analyzer.config [load-config])
+(import thyforce.lsp.analyzer.resolver
         [PythonResolver find-workspace-root iter-hy-files symbol-from-object])
 
 ;; ---------------------------------------------------------------------------

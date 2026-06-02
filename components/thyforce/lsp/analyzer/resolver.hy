@@ -17,10 +17,10 @@ data-first, immutable design.
 (import pathlib [Path])
 (import typeshed-client [get-stub-file])
 
-(import thyforce.analysis.model :as model)
-(import thyforce.analysis.uri :as uri)
-(import thyforce.analysis.config :as cfg)
-(import thyforce.analysis.python-static :as ps)
+(import thyforce.lsp.analyzer.model :as model)
+(import thyforce.lsp.analyzer.uri :as uri)
+(import thyforce.lsp.analyzer.config :as cfg)
+(import thyforce.lsp.analyzer.python-static :as ps)
 
 (setv _IGNORED-DIRS (set cfg.DEFAULT-EXCLUDE-DIRS))
 

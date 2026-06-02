@@ -1,8 +1,8 @@
 (import hy)
 (import tempfile)
 (import pathlib [Path])
-(import thyforce.analysis.index :as index)
-(import thyforce.analysis.uri :as uri)
+(import thyforce.lsp.analyzer.index :as index)
+(import thyforce.lsp.analyzer.uri :as uri)
 
 ;; Stdlib-source tests (resolving math.pyi/json source via typeshed) are omitted:
 ;; typeshed_client.get_stub_file shells out to `[sys.executable, "-c", ...]`, and

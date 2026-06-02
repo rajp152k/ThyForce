@@ -11,8 +11,8 @@ safe for arbitrary workspaces. A static module is a map:
 (import ast)
 (import hy)
 (import pathlib [Path])
-(import thyforce.analysis.model :as model)
-(import thyforce.analysis.uri :as uri)
+(import thyforce.lsp.analyzer.model :as model)
+(import thyforce.lsp.analyzer.uri :as uri)
 
 (defn static-module [module path [documentation ""] [symbols None] [re-exports None]]
   {"module" module "path" path "documentation" documentation
