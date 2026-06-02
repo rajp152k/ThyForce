@@ -17,7 +17,7 @@
    "paths" {"bases" "bases" "components" "components" "projects" "projects" "test-root" "tests"}
    "layout" {"theme" "loose"
              "brick-path" "{kind}/{namespace}/{name}"
-             "test-path" "{test-root}/{kind}/{namespace}/{name}"}
+             "test-path" "{test-root}/{namespace}/{name}"}
    "language" {"default" "hy"
                "adapters" {"hy" {"source-ext" ".hy"
                                     "test-ext" ".hy"
@@ -39,10 +39,10 @@
   [td root])
 
 (defn assert= [actual expected]
-  (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
+  (assert (= actual expected) f"Expected {expected !r}, got {actual !r}"))
 
 (defn assert-in [item coll]
-  (assert (in item coll) f"Expected {item!r} in {coll!r}"))
+  (assert (in item coll) f"Expected {item !r} in {coll !r}"))
 
 (defn test-workspace-root-finds-nearest-cfg-hy []
   (setv [td root] (make-workspace))
@@ -82,7 +82,7 @@
     (assert= (Path (get result "path")) brick-dir)
     (assert= (.read_text (/ brick-dir "core.hy") :encoding "utf-8") ";; component polhy/config\n(import os)\n")
     (assert-in "from acme.polhy.config import core" (.read_text (/ brick-dir "__init__.py") :encoding "utf-8"))
-    (assert (.exists (/ root "tests" "components" "acme" "polhy" "config" "test_core.hy")))
+    (assert (.exists (/ root "tests" "acme" "polhy" "config" "test_core.hy")))
     (finally (.cleanup td))))
 
 (defn test-create-nested-base []
@@ -147,7 +147,7 @@
       (print f"ok {name}")
       (except [e Exception]
         (.append failures [name e])
-        (print f"FAIL {name}: {e!r}"))))
+        (print f"FAIL {name}: {e !r}"))))
   (when failures
     (raise (AssertionError f"{(len failures)} test(s) failed")))
   (print f"{(len tests)} Hy tests passed"))
