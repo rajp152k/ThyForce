@@ -42,3 +42,6 @@ jobs:
 
       - name: Run spec tests
         run: uv run hy tests/thyforce/spec/test_spec.hy
+
+      - name: Run lsp engine tests
+        run: uv run hy tests/thyforce/lsp/test_core.hy
