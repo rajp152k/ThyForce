@@ -1,4 +1,4 @@
-(import argparse json)
+(import argparse json sys)
 (import thyforce.polhy.core :as engine)
 
 (defn print-json [data]
@@ -11,6 +11,7 @@
   (.add_parser sub "deps")
   (.add_parser sub "check")
   (.add_parser sub "sync")
+  (.add_parser sub "test")
   (setv create (.add_parser sub "create"))
   (setv create-sub (.add_subparsers create :dest "kind" :required True))
   (for [kind ["component" "base"]]
@@ -26,6 +27,11 @@
     (= command "deps") (print-json (engine.dependency-report))
     (= command "check") (print-json (engine.check-workspace))
     (= command "sync") (print-json (engine.sync-workspace))
+    (= command "test")
+      (do
+        (setv result (engine.test-workspace))
+        (print-json result)
+        (when (not (get result "ok")) (sys.exit 1)))
     (= command "create")
       (do
         (setv root (engine.workspace-root))

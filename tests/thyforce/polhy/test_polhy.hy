@@ -7,6 +7,7 @@
 (import thyforce.polhy.config :as config)
 (import thyforce.polhy.deps :as deps)
 (import thyforce.polhy.forms :as forms)
+(import thyforce.polhy.testing :as testing)
 (import thyforce.polhy.projects :as projects)
 (import thyforce.polhy.sync :as sync)
 (import thyforce.polhy.workspace :as workspace)
@@ -158,6 +159,28 @@
            [{"kind" "import" "module" "deep"}])
   ;; malformed source is tolerated
   (assert= (forms.module-refs "(import ") []))
+
+(defn test-testing-discovers-and-aggregates []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (setv tdir (/ root "tests" "acme" "demo"))
+    (.mkdir tdir :parents True)
+    (.write_text (/ tdir "test_pass.hy")
+                 "(defn run-tests [] (print \"1 passed\"))\n(when (= __name__ \"__main__\") (run-tests))\n"
+                 :encoding "utf-8")
+    (.write_text (/ tdir "test_fail.hy")
+                 "(defn run-tests [] (raise (AssertionError \"boom\")))\n(when (= __name__ \"__main__\") (run-tests))\n"
+                 :encoding "utf-8")
+    (assert= (len (testing.discover root cfg)) 2)
+    ;; execute via the repo's real venv Python (has hy); discovery is from the temp root
+    (setv python (testing.venv-python (config.workspace-root (Path (os.getcwd)))))
+    (setv result (testing.run :start root :python python))
+    (assert= (get result "ok") False)
+    (assert= (get result "passed") 1)
+    (assert= (get result "failed") 1)
+    (assert= (get result "total") 2)
+    (finally (.cleanup td))))
 
 (defn run-tests []
   (setv tests (sorted (list (gfor item (globals) :if (.startswith item "test_") item))))

@@ -5,6 +5,7 @@
 (import thyforce.polhy.sync :as sync)
 (import thyforce.polhy.projects :as projects)
 (import thyforce.polhy.config :as config)
+(import thyforce.polhy.testing :as testing)
 
 (defn info [[start None]]
   (workspace.info start))
@@ -17,6 +18,9 @@
 
 (defn sync-workspace [[start None]]
   (sync.run start))
+
+(defn test-workspace [[start None]]
+  (testing.run start))
 
 (defn workspace-root [[start None]]
   (config.workspace-root start))

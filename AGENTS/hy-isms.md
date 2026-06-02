@@ -64,6 +64,23 @@ as you hit new ones. Each entry: the trap, why, and the fix.
     tests — but it argues for running tests via Python, not the `hy` CLI (see
     workflow-improvements.md, custom test runner).
 
+- **`uvx --from ./projects/<name>` serves stale wheels after brick edits.** uv
+  caches the built wheel keyed on the project tree (`projects/<name>/`), but a
+  Polylith project pulls its bricks via `force-include` from `../../components`
+  and `../../bases` — *outside* that tree. Editing a brick does not change the
+  cache key, so uv reuses the old wheel. `--refresh` and `--reinstall` do NOT
+  rebuild it; only `uv cache clean <name>` (or touching the project's own
+  `pyproject.toml`) forces a rebuild.
+  - Unaffected: CI (fresh machine, no cache) and git installs
+    (`git+...@<ref>#subdirectory=...` keys on the commit SHA).
+  - Local dev after editing bricks: prefer live source
+    (`PYTHONPATH=bases:components uv run hy ...`, or `cli.main` directly) over
+    `uvx --from ./projects/...`, or `uv cache clean <name>` first.
+  - PYTHONPATH order matters: use `bases:components` (bases first). The `polhy`
+    component's interface `__init__.py` is a regular package; with components
+    first it shadows the `bases` `extend_path` shim and `thyforce.polhy.cli`
+    (the base) fails to import. Bases-first lets the namespace span both.
+
 ## Shadowing / scoping
 
 - **Module alias shadowed by a same-named parameter.** `(import x.y.uri :as uri)`
