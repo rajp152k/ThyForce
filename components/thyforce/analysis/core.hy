@@ -7,7 +7,13 @@ public result is a plain data map, validated by `thyforce.spec`.
 
 Submodules:
 
-- `model`  symbol-info / source-range constructors, kinds, and shape predicates
+- `model`               symbol-info / source-range constructors, kinds, predicates
+- `word`                symbol extraction, occurrences, enclosing-call detection
+- `folding`             delimiter-based folding ranges
+- `completion-context`  import/require completion-context detection
 "
 
 (import thyforce.analysis.model :as model)
+(import thyforce.analysis.word :as word)
+(import thyforce.analysis.folding :as folding)
+(import thyforce.analysis.completion-context :as completion-context)

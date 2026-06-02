@@ -1,6 +1,9 @@
 (import hy)
 (import types [SimpleNamespace])
 (import thyforce.analysis.model :as model)
+(import thyforce.analysis.word :as word)
+(import thyforce.analysis.folding :as folding)
+(import thyforce.analysis.completion-context :as cc)
 
 (defn assert= [actual expected]
   (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
@@ -95,6 +98,68 @@
               :detail "local defn"
               :documentation "Does a thing."))
   (assert= (model.hover-text sym) "foo (foo [x])\n[local defn]\n\nDoes a thing."))
+
+;; ---------------------------------------------------------------------------
+;; word
+;; ---------------------------------------------------------------------------
+
+(defn test-word-prefix-and-word-at []
+  (setv source "(lfor x (range 3) x)\n")
+  (assert= (word.word-prefix source 0 3) "lf")
+  (assert= (word.word-at source 0 2) "lfor")
+  (assert= (word.word-range-at source 0 2) #(1 5)))
+
+(defn test-reader-macro-word []
+  (setv source "#bang value\n")
+  (assert= (word.word-prefix source 0 3) "#ba")
+  (assert= (word.word-at source 0 2) "#bang")
+  (assert= (word.word-range-at source 0 2) #(0 5)))
+
+(defn test-occurrences []
+  (assert= (word.occurrences "(foo)\n(foo bar)\n" "foo") [#(0 1 4) #(1 1 4)])
+  (assert= (word.occurrences "(foo)" "") []))
+
+(defn test-enclosing-call []
+  (setv source "(foo 1 (+ 2 3) \n")
+  (assert= (word.enclosing-call source 0 (len source)) #("foo" 2))
+  (assert= (word.enclosing-call "no call here" 0 5) None))
+
+;; ---------------------------------------------------------------------------
+;; folding
+;; ---------------------------------------------------------------------------
+
+(defn test-folding-ranges-for-multiline-forms []
+  (setv ranges (folding.folding-ranges "(defn foo [x]\n  (if x\n    [1\n     2]\n    0))\n"))
+  (assert-true (in (folding.fold-range 0 0 4 7) ranges))
+  (assert-true (in (folding.fold-range 1 2 4 6) ranges))
+  (assert-true (in (folding.fold-range 2 4 3 7) ranges)))
+
+(defn test-folding-ignores-strings-and-comments []
+  (setv ranges (folding.folding-ranges "(print \"(\") ; [\n(defn foo []\n  1)\n"))
+  (assert= ranges [(folding.fold-range 1 0 2 4)]))
+
+(defn test-folding-tolerates-incomplete-buffers []
+  (assert= (folding.folding-ranges "(defn foo []\n  (print 1)\n") []))
+
+;; ---------------------------------------------------------------------------
+;; completion-context
+;; ---------------------------------------------------------------------------
+
+(defn test-import-module-context []
+  (setv source "(import pathli)\n")
+  (assert= (cc.completion-context source 0 (len "(import pathli")) (cc.ctx "import-module")))
+
+(defn test-import-member-context []
+  (setv source "(import os.path [ex])\n")
+  (assert= (cc.completion-context source 0 (+ (.index source "ex") 2))
+           (cc.ctx "import-member" "os.path")))
+
+(defn test-require-macro-and-reader-contexts []
+  (setv source "(require macros :macros [za] :readers [ba])\n")
+  (assert= (cc.completion-context source 0 (+ (.index source "za") 2))
+           (cc.ctx "require-macro" "macros"))
+  (assert= (cc.completion-context source 0 (+ (.index source "ba") 2))
+           (cc.ctx "require-reader" "macros")))
 
 ;; ---------------------------------------------------------------------------
 ;; runner
