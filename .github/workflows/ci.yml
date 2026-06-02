@@ -54,3 +54,6 @@ jobs:
 
       - name: Run service tests
         run: uv run hy tests/thyforce/service/test_core.hy
+
+      - name: Run cli e2e tests
+        run: uv run hy tests/thyforce/service/cli/test_core.hy
