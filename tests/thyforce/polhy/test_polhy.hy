@@ -6,6 +6,7 @@
 (import thyforce.polhy.cli.core :as cli)
 (import thyforce.polhy.config :as config)
 (import thyforce.polhy.deps :as deps)
+(import thyforce.polhy.forms :as forms)
 (import thyforce.polhy.projects :as projects)
 (import thyforce.polhy.sync :as sync)
 (import thyforce.polhy.workspace :as workspace)
@@ -123,8 +124,14 @@
   (try
     (setv cfg (config.load-config root))
     (bricks.create-brick root cfg "components" "polhy/config")
-    (assert= (deps.hy-imports "(import os json)\n(require hyrule [->])\n") ["os json" "hyrule"])
-    (assert= (get (deps.dependency-report root) "polhy/config") ["os"])
+    (bricks.create-brick root cfg "components" "demo")
+    (.write_text (/ root "components" "acme" "demo" "core.hy")
+                 "(import acme.polhy.config.core)\n(import hy)\n(import os)\n" :encoding "utf-8")
+    (assert= (forms.module-refs "(import os json)\n(require hyrule [->])\n")
+             [{"kind" "import" "module" "os"} {"kind" "import" "module" "json"} {"kind" "require" "module" "hyrule"}])
+    (setv report (deps.dependency-report root))
+    (assert= (get report "polhy/config") {"bricks" [] "libs" []})
+    (assert= (get report "demo") {"bricks" ["polhy/config"] "libs" ["hy"]})
     (assert (get (check.run root) "ok"))
     (assert (get (sync.run root) "ok"))
     (assert= (Path (get (projects.project-data root cfg "service") "root")) (/ root "projects" "service"))
@@ -137,6 +144,20 @@
       (assert= (get (json.loads (.getvalue out)) "namespace") "acme")
       (finally (os.chdir old-cwd)))
     (finally (.cleanup td))))
+
+(defn test-forms-module-refs-handles-clause-modifiers []
+  ;; :as alias must NOT be read as a module; members/star/dotted/selectors skipped
+  (assert= (forms.module-refs "(import a :as b)") [{"kind" "import" "module" "a"}])
+  (assert= (forms.module-refs "(import a.b.c [x :as y] z)")
+           [{"kind" "import" "module" "a.b.c"} {"kind" "import" "module" "z"}])
+  (assert= (forms.module-refs "(require m :macros [mac] :readers [r])")
+           [{"kind" "require" "module" "m"}])
+  (assert= (forms.module-refs "(import pkg *)") [{"kind" "import" "module" "pkg"}])
+  ;; nested inside other forms is still found
+  (assert= (forms.module-refs "(eval-and-compile (import deep))")
+           [{"kind" "import" "module" "deep"}])
+  ;; malformed source is tolerated
+  (assert= (forms.module-refs "(import ") []))
 
 (defn run-tests []
   (setv tests (sorted (list (gfor item (globals) :if (.startswith item "test_") item))))
