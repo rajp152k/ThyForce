@@ -15,6 +15,9 @@ Submodules:
 - `core-docs`           explicit documentation table for Hy core forms
 - `python-static`       side-effect-free AST indexing of Python modules
 - `uri`                 filesystem-path / file-URI conversion
+- `config`              workspace configuration ([tool.hyground] adapter)
+- `resolver`            workspace-scoped Python/Hy runtime + static resolution
+- `index`               document + workspace indexes, completion, resolution
 "
 
 (import thyforce.analysis.model :as model)
@@ -25,3 +28,6 @@ Submodules:
 (import thyforce.analysis.core-docs :as core-docs)
 (import thyforce.analysis.python-static :as python-static)
 (import thyforce.analysis.uri :as uri)
+(import thyforce.analysis.config :as config)
+(import thyforce.analysis.resolver :as resolver)
+(import thyforce.analysis.index :as index)

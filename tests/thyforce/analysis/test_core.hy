@@ -14,13 +14,13 @@
 (import thyforce.analysis.resolver :as resolver)
 
 (defn assert= [actual expected]
-  (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
+  (assert (= actual expected) f"Expected {expected !r}, got {actual !r}"))
 
 (defn assert-true [value]
-  (assert value f"Expected truthy, got {value!r}"))
+  (assert value f"Expected truthy, got {value !r}"))
 
 (defn assert-false [value]
-  (assert (not value) f"Expected falsy, got {value!r}"))
+  (assert (not value) f"Expected falsy, got {value !r}"))
 
 ;; ---------------------------------------------------------------------------
 ;; kinds
@@ -303,7 +303,7 @@
       (print f"ok {name}")
       (except [e Exception]
         (.append failures [name e])
-        (print f"FAIL {name}: {e!r}"))))
+        (print f"FAIL {name}: {e !r}"))))
   (when failures
     (raise (AssertionError f"{(len failures)} test(s) failed")))
   (print f"{(len tests)} Hy analysis tests passed"))

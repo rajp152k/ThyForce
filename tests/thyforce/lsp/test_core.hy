@@ -33,14 +33,14 @@
 ;; ---------------------------------------------------------------------------
 
 (defn assert= [actual expected]
-  (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
+  (assert (= actual expected) f"Expected {expected !r}, got {actual !r}"))
 
 (defn assert-raises [exc-type substring thunk]
   (try
     (thunk)
-    (raise (AssertionError f"Expected {exc-type!r} to be raised"))
+    (raise (AssertionError f"Expected {exc-type !r} to be raised"))
     (except [e exc-type]
-      (assert (in substring (str e)) f"Expected {substring!r} in error {(str e)!r}"))))
+      (assert (in substring (str e)) f"Expected {substring !r} in error {(str e) !r}"))))
 
 (defn codes [issues]
   (set (lfor issue issues (get issue "code"))))
@@ -326,7 +326,7 @@
       (print f"ok {name}")
       (except [e Exception]
         (.append failures [name e])
-        (print f"FAIL {name}: {e!r}"))))
+        (print f"FAIL {name}: {e !r}"))))
   (when failures
     (raise (AssertionError f"{(len failures)} test(s) failed")))
   (print f"{(len tests)} Hy lsp tests passed"))

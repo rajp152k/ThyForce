@@ -3,13 +3,13 @@
 (import thyforce.spec.core :as spec)
 
 (defn assert= [actual expected]
-  (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
+  (assert (= actual expected) f"Expected {expected !r}, got {actual !r}"))
 
 (defn assert-truthy [value]
-  (assert value f"Expected truthy value, got {value!r}"))
+  (assert value f"Expected truthy value, got {value !r}"))
 
 (defn assert-falsy [value]
-  (assert (not value) f"Expected falsy value, got {value!r}"))
+  (assert (not value) f"Expected falsy value, got {value !r}"))
 
 (defn test_primitive_predicates []
   (assert-truthy (spec.str? "thyforce"))
@@ -84,7 +84,7 @@
       (print f"ok {name}")
       (except [e Exception]
         (.append failures [name e])
-        (print f"FAIL {name}: {e!r}"))))
+        (print f"FAIL {name}: {e !r}"))))
   (when failures
     (raise (AssertionError f"{(len failures)} test(s) failed")))
   (print f"{(len tests)} Hy spec tests passed"))

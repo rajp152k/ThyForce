@@ -48,3 +48,6 @@ jobs:
 
       - name: Run analysis tests
         run: uv run hy tests/thyforce/analysis/test_core.hy
+
+      - name: Run analysis index tests
+        run: uv run hy tests/thyforce/analysis/test_index.hy

@@ -63,3 +63,18 @@ as you hit new ones. Each entry: the trap, why, and the fix.
   - The resolver already wraps it in try/except, so this is only stderr noise in
     tests — but it argues for running tests via Python, not the `hy` CLI (see
     workflow-improvements.md, custom test runner).
+
+## Shadowing / scoping
+
+- **Module alias shadowed by a same-named parameter.** `(import x.y.uri :as uri)`
+  at module top, then a method `(defn root-for-uri [self uri] ... (uri.to-fs-path uri))`:
+  inside that method `uri` is the *parameter* (a string), so `uri.to-fs-path`
+  raises `AttributeError`. If that call sits inside a broad `(try ... (except
+  [Exception] (return (Path.cwd))))`, the failure is swallowed and you get a
+  silent wrong fallback (here: every URI resolved to cwd, so the indexer scanned
+  the whole repo instead of the target workspace). Two lessons:
+  - Don't alias a module to a name you also use as a parameter/local. We renamed
+    the import to `uris`.
+  - Beware broad `except` that masks `AttributeError`/`NameError` from typos and
+    shadowing. When a "tolerant" fallback fires suspiciously often, suspect a
+    masked programming error, not bad input.

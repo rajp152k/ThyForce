@@ -39,10 +39,10 @@
   [td root])
 
 (defn assert= [actual expected]
-  (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
+  (assert (= actual expected) f"Expected {expected !r}, got {actual !r}"))
 
 (defn assert-in [item coll]
-  (assert (in item coll) f"Expected {item!r} in {coll!r}"))
+  (assert (in item coll) f"Expected {item !r} in {coll !r}"))
 
 (defn test-workspace-root-finds-nearest-cfg-hy []
   (setv [td root] (make-workspace))
@@ -147,7 +147,7 @@
       (print f"ok {name}")
       (except [e Exception]
         (.append failures [name e])
-        (print f"FAIL {name}: {e!r}"))))
+        (print f"FAIL {name}: {e !r}"))))
   (when failures
     (raise (AssertionError f"{(len failures)} test(s) failed")))
   (print f"{(len tests)} Hy tests passed"))
