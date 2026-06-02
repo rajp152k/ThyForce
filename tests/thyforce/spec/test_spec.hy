@@ -44,11 +44,44 @@
   (assert-falsy (has-name? {"other" "polhy"})))
 
 (defn test_validate_returns_data []
-  (assert= (spec.validate spec.str? "ok") {"ok" True "value" "ok" "errors" []})
+  (assert= (spec.validate spec.str? "ok") {"ok" True "value" "ok" "problems" []})
   (setv result (spec.validate spec.str? 1))
   (assert= (get result "ok") False)
   (assert= (get result "value") 1)
-  (assert= (get (get result "errors") 0) {"code" "failed-spec" "message" "value failed spec"}))
+  (setv problem (get (get result "problems") 0))
+  (assert= (get problem "pred") "str?")
+  (assert= (get problem "path") []))
+
+(defn test_validate_reports_nested_paths []
+  (setv project?
+    (spec.and-spec
+      (spec.key-pred "name" spec.str?)
+      (spec.key-pred "bricks" (spec.list-of spec.str?))))
+  (setv result (spec.validate project? {"name" 1 "bricks" ["ok" 2]}))
+  (assert-falsy (get result "ok"))
+  (setv by-path (dfor p (get result "problems") (tuple (get p "path")) (get p "pred")))
+  (assert= (get by-path #("name")) "str?")
+  (assert= (get by-path #("bricks" 1)) "str?"))
+
+(defn test_validate_reports_missing_key []
+  (setv result (spec.validate (spec.key-pred "name" spec.str?) {}))
+  (assert-falsy (get result "ok"))
+  (setv problem (get (get result "problems") 0))
+  (assert= (get problem "path") ["name"])
+  (assert= (get problem "pred") "required"))
+
+(defn test_validate_traces_genspec_paths []
+  (setv ws? (genspec {"namespace" spec.str? "paths" {"bases" spec.str?}}))
+  (setv result (spec.validate ws? {"namespace" "t" "paths" {"bases" 9}}))
+  (assert-falsy (get result "ok"))
+  (setv problem (get (get result "problems") 0))
+  (assert= (get problem "path") ["paths" "bases"])
+  (assert= (get problem "pred") "str?"))
+
+(defn test_maybe_allows_nil_in_validate []
+  (setv s (spec.key-pred "x" (spec.maybe spec.int?)))
+  (assert-truthy (get (spec.validate s {"x" None}) "ok"))
+  (assert-falsy (get (spec.validate s {"x" "no"}) "ok")))
 
 (defn test_genspec_builds_nested_map_predicate []
   (setv workspace?
