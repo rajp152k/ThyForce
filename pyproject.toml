@@ -9,6 +9,7 @@ dependencies = [
     "hyrule>=1.0.1",
     "pyrsistent>=0.20.0",
     "toolz>=1.1.0",
+    "typeshed-client>=2.11.0",
 ]
 
 [project.scripts]

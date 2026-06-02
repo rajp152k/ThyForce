@@ -10,6 +10,8 @@
 (import thyforce.analysis.uri :as uri)
 (import tempfile)
 (import pathlib [Path])
+(import thyforce.analysis.config :as cfg)
+(import thyforce.analysis.resolver :as resolver)
 
 (defn assert= [actual expected]
   (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
@@ -247,6 +249,46 @@
 
 (defn test-static-module-missing-returns-none []
   (assert= (ps.load-static-python-module (Path (tempfile.mkdtemp)) "nope-missing") None))
+
+;; ---------------------------------------------------------------------------
+;; resolver
+;; ---------------------------------------------------------------------------
+
+(defn test-resolver-stdlib-object []
+  (setv res (resolver.PythonResolver (Path (tempfile.mkdtemp))))
+  (setv sym (res.object-symbol "sqrt" "math.sqrt"))
+  (assert= (get sym "kind") model.KIND-LOCAL-FUNCTION)
+  (assert-true (in "x" (get sym "signature")))
+  (assert-true (model.symbol-info? sym)))
+
+(defn test-resolver-module-symbol []
+  (setv res (resolver.PythonResolver (Path (tempfile.mkdtemp))))
+  (setv sym (res.module-symbol "math" "math"))
+  (assert= (get sym "kind") model.KIND-MODULE)
+  (assert= (get sym "module") "math"))
+
+(defn test-resolver-static-member-without-imports []
+  (setv root (_temp-module))
+  (setv res (resolver.PythonResolver root (cfg.config :allow-workspace-imports False)))
+  (setv sym (res.static-member-symbol "make-thing" "demo-mod" "make-thing"))
+  (assert= (get sym "name") "make-thing")
+  (assert= (get sym "kind") model.KIND-LOCAL-FUNCTION)
+  (setv mod-sym (res.static-module-symbol "demo-mod" "demo-mod"))
+  (assert= (get mod-sym "kind") model.KIND-MODULE))
+
+(defn test-find-workspace-root []
+  (setv d (Path (tempfile.mkdtemp)))
+  (.write_text (/ d "pyproject.toml") "[project]\nname = \"x\"\n")
+  (setv nested (/ d "a" "b"))
+  (.mkdir nested :parents True)
+  (assert= (resolver.find-workspace-root nested) d))
+
+(defn test-iter-hy-files-excludes-ignored-dirs []
+  (setv d (Path (tempfile.mkdtemp)))
+  (.write_text (/ d "a.hy") "(setv x 1)")
+  (.mkdir (/ d "__pycache__"))
+  (.write_text (/ d "__pycache__" "b.hy") "(setv y 2)")
+  (assert= (sorted (lfor f (resolver.iter-hy-files d) f.name)) ["a.hy"]))
 
 ;; ---------------------------------------------------------------------------
 ;; runner
