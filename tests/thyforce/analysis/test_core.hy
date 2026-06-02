@@ -4,6 +4,8 @@
 (import thyforce.analysis.word :as word)
 (import thyforce.analysis.folding :as folding)
 (import thyforce.analysis.completion-context :as cc)
+(import thyforce.analysis.semantic :as semantic)
+(import thyforce.analysis.core-docs :as core-docs)
 
 (defn assert= [actual expected]
   (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
@@ -160,6 +162,47 @@
            (cc.ctx "require-macro" "macros"))
   (assert= (cc.completion-context source 0 (+ (.index source "ba") 2))
            (cc.ctx "require-reader" "macros")))
+
+;; ---------------------------------------------------------------------------
+;; semantic
+;; ---------------------------------------------------------------------------
+
+(defn token-text [source token]
+  (setv line (get (.splitlines source) (get token "line")))
+  (cut line (get token "start") (+ (get token "start") (get token "length"))))
+
+(defn stub-resolver [symbols]
+  (fn [name line character] (.get symbols name None)))
+
+(defn test-semantic-token-encoding-is-relative []
+  (setv data (semantic.encode-semantic-tokens
+               (semantic.semantic-tokens "1\n  2\n" (fn [n l c] None))))
+  (assert= data [0 0 1 7 0 1 2 1 7 0]))
+
+(defn test-semantic-tokens-classify-hy-source []
+  (setv source "(defn foo [x]\n  \"Docs\"\n  (+ x 1)) ; comment\n#bang\n")
+  (setv resolve (stub-resolver
+                  {"defn" (model.symbol-info "defn" model.KIND-CORE-FORM)
+                   "foo" (model.symbol-info "foo" model.KIND-LOCAL-FUNCTION)
+                   "#bang" (model.symbol-info "#bang" model.KIND-READER-MACRO)}))
+  (setv tokens (semantic.semantic-tokens source resolve))
+  (setv by-text (set (gfor token tokens #((token-text source token) (get token "token-type")))))
+  (assert-true (in #("defn" "keyword") by-text))
+  (assert-true (in #("foo" "function") by-text))
+  (assert-true (in #("\"Docs\"" "string") by-text))
+  (assert-true (in #("+" "operator") by-text))
+  (assert-true (in #("1" "number") by-text))
+  (assert-true (in #("; comment" "comment") by-text))
+  (assert-true (in #("#bang" "macro") by-text)))
+
+;; ---------------------------------------------------------------------------
+;; core-docs
+;; ---------------------------------------------------------------------------
+
+(defn test-core-docs-table []
+  (assert-true (in "defn" core-docs.CORE-DOCS))
+  (assert= (get (get core-docs.CORE-DOCS "if") "signature") "(if test true-value false-value)")
+  (assert-true (.startswith (get (get core-docs.CORE-DOCS "do") "documentation") "Evaluate BODY")))
 
 ;; ---------------------------------------------------------------------------
 ;; runner
