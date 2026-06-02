@@ -12,6 +12,7 @@ invalid values fall back to safe defaults so server startup never fails on confi
 
 (import tomllib)
 (import pathlib [Path])
+(import thyforce.spec.core :as spec)
 
 (setv DEFAULT-INDEX-LIMIT 500)
 (setv DEFAULT-EXCLUDE-DIRS
@@ -22,6 +23,12 @@ invalid values fall back to safe defaults so server startup never fails on confi
   {"index-limit" index-limit
    "exclude-dirs" (if (is exclude-dirs None) (list DEFAULT-EXCLUDE-DIRS) exclude-dirs)
    "allow-workspace-imports" allow-workspace-imports})
+
+(setv config?
+  (spec.and-spec
+    (spec.key-pred "index-limit" spec.int?)
+    (spec.key-pred "exclude-dirs" (spec.list-of spec.str?))
+    (spec.key-pred "allow-workspace-imports" spec.bool?)))
 
 (defn _get [table kebab snake]
   (if (in kebab table) (get table kebab) (.get table snake)))

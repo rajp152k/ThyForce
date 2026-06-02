@@ -291,6 +291,35 @@
   (assert= (sorted (lfor f (resolver.iter-hy-files d) f.name)) ["a.hy"]))
 
 ;; ---------------------------------------------------------------------------
+;; config
+;; ---------------------------------------------------------------------------
+
+(defn test-config-defaults-and-spec []
+  (setv c (cfg.config))
+  (assert= (get c "index-limit") 500)
+  (assert= (get c "allow-workspace-imports") True)
+  (assert-true (in ".venv" (get c "exclude-dirs")))
+  (assert-true (cfg.config? c)))
+
+(defn test-config-spec-rejects-bad-shapes []
+  (assert-false (cfg.config? {"index-limit" "no" "exclude-dirs" [] "allow-workspace-imports" True}))
+  (assert-false (cfg.config? {"index-limit" 1 "exclude-dirs" [1] "allow-workspace-imports" True}))
+  (assert-false (cfg.config? {"index-limit" 1 "exclude-dirs" [] "allow-workspace-imports" 1})))
+
+(defn test-load-config-reads-tool-table []
+  (setv root (Path (tempfile.mkdtemp)))
+  (.write-text (/ root "pyproject.toml")
+    "[tool.hyground]\nindex-limit = 42\nexclude-dirs = [\"build\"]\nallow-workspace-imports = false\n")
+  (setv c (cfg.load-config root))
+  (assert= (get c "index-limit") 42)
+  (assert= (get c "allow-workspace-imports") False)
+  (assert-true (in "build" (get c "exclude-dirs")))
+  (assert-true (in ".venv" (get c "exclude-dirs"))))
+
+(defn test-load-config-missing-pyproject-defaults []
+  (assert= (get (cfg.load-config (Path (tempfile.mkdtemp))) "index-limit") 500))
+
+;; ---------------------------------------------------------------------------
 ;; runner
 ;; ---------------------------------------------------------------------------
 
