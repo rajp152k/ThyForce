@@ -12,10 +12,6 @@ dependencies = [
     "typeshed-client>=2.11.0",
 ]
 
-[project.scripts]
-polhy = "thyforce.polhy.cli.runner:main"
-hyground = "thyforce.lsp.server.runner:main"
-
 [dependency-groups]
 dev = []
 

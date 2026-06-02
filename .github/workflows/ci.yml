@@ -32,10 +32,10 @@ jobs:
         run: uv sync --locked
 
       - name: Run Polylith workspace check
-        run: uv run polhy check
+        run: uvx --from ./projects/polhy polhy check
 
       - name: Run Polylith dependency report
-        run: uv run polhy deps
+        run: uvx --from ./projects/polhy polhy deps
 
       - name: Run polhy tests
         run: uv run hy tests/thyforce/polhy/test_polhy.hy

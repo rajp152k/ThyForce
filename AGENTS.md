@@ -21,17 +21,20 @@ Polylith is treated here as an architectural model, not as the existing Python `
 
 ## Polylith tooling usage
 
-Use the in-repo `polhy` command for Polylith operations.
+Use the in-repo `polhy` command for Polylith operations. The root `pyproject.toml`
+exposes no console scripts; run `polhy` through its project (`projects/polhy`):
 
 Do use:
 
 ```bash
-uv run polhy info
-uv run polhy check
-uv run polhy deps
-uv run polhy create component <domain>/<component>
-uv run polhy create base <domain>/<base>
+uvx --from ./projects/polhy polhy info
+uvx --from ./projects/polhy polhy check
+uvx --from ./projects/polhy polhy deps
+uvx --from ./projects/polhy polhy create component <domain>/<component>
+uvx --from ./projects/polhy polhy create base <domain>/<base>
 ```
+
+Tip: alias it for interactive use — `alias polhy='uvx --from ./projects/polhy polhy'`.
 
 Do not use:
 
@@ -282,7 +285,7 @@ Avoid putting reusable behavior directly in bases.
 - Bases contain entrypoints/adapters such as CLIs, HTTP handlers, workers, etc.
 - Components contain reusable domain/tooling functionality.
 - Projects represent buildable/deployable artifacts.
-- Projects are deployable artifacts, created once a real one exists — which is now the case. Live projects under `projects/`: `hyground` (the Hy language server) and `polhy` (the workspace tooling). The root `pyproject.toml` is the **development project** — an editable install of all bricks that exposes `uv run polhy` / `uv run hyground` for in-repo work. Each `projects/<name>/pyproject.toml` is a slim standalone deployable. See the Projects section below.
+- Projects are deployable artifacts, created once a real one exists — which is now the case. Live projects under `projects/`: `hyground` (the Hy language server) and `polhy` (the workspace tooling). The root `pyproject.toml` is the **development project** — an editable install of all bricks that provides the `.venv` (deps + `import thyforce.*`) for in-repo work and tests. It exposes no console scripts; entrypoints are reached through their projects (`uvx --from ./projects/<name> <script>`). Each `projects/<name>/pyproject.toml` is a slim standalone deployable. See the Projects section below.
 
 Example:
 
@@ -416,8 +419,8 @@ feature/language-agnostic-polylith
 Workspace + tests:
 
 ```bash
-uv run polhy check
-uv run polhy deps
+uvx --from ./projects/polhy polhy check
+uvx --from ./projects/polhy polhy deps
 PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/engine/test_core.hy
 PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/analyzer/test_core.hy
 PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/analyzer/test_index.hy

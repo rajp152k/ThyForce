@@ -19,8 +19,8 @@ hand. Problems:
 Proposal: a single runner that discovers `tests/**/test_*.hy`, imports each under
 Python (after `import hy`), invokes its `run-tests`, and returns an aggregate
 exit code. Natural home: a `polhy test` subcommand so CI is one line
-(`uv run polhy test`) and local runs are uniform. Keep per-file `run-tests` so
-files stay individually runnable.
+(`uvx --from ./projects/polhy polhy test`) and local runs are uniform. Keep
+per-file `run-tests` so files stay individually runnable.
 
 ## polhy upgrades
 
