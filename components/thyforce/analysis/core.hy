@@ -13,6 +13,8 @@ Submodules:
 - `completion-context`  import/require completion-context detection
 - `semantic`            best-effort semantic tokens + LSP encoding
 - `core-docs`           explicit documentation table for Hy core forms
+- `python-static`       side-effect-free AST indexing of Python modules
+- `uri`                 filesystem-path / file-URI conversion
 "
 
 (import thyforce.analysis.model :as model)
@@ -21,3 +23,5 @@ Submodules:
 (import thyforce.analysis.completion-context :as completion-context)
 (import thyforce.analysis.semantic :as semantic)
 (import thyforce.analysis.core-docs :as core-docs)
+(import thyforce.analysis.python-static :as python-static)
+(import thyforce.analysis.uri :as uri)

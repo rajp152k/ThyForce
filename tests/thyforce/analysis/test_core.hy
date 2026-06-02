@@ -6,6 +6,10 @@
 (import thyforce.analysis.completion-context :as cc)
 (import thyforce.analysis.semantic :as semantic)
 (import thyforce.analysis.core-docs :as core-docs)
+(import thyforce.analysis.python-static :as ps)
+(import thyforce.analysis.uri :as uri)
+(import tempfile)
+(import pathlib [Path])
 
 (defn assert= [actual expected]
   (assert (= actual expected) f"Expected {expected!r}, got {actual!r}"))
@@ -203,6 +207,46 @@
   (assert-true (in "defn" core-docs.CORE-DOCS))
   (assert= (get (get core-docs.CORE-DOCS "if") "signature") "(if test true-value false-value)")
   (assert-true (.startswith (get (get core-docs.CORE-DOCS "do") "documentation") "Evaluate BODY")))
+
+;; ---------------------------------------------------------------------------
+;; uri + python-static
+;; ---------------------------------------------------------------------------
+
+(defn test-uri-round-trip []
+  (assert= (uri.to-fs-path (uri.from-fs-path "/tmp/demo/x.hy")) "/tmp/demo/x.hy")
+  (assert-true (.startswith (uri.from-fs-path "/tmp/x.hy") "file://")))
+
+(setv _PY-MODULE "\"Module doc.\"\n\ndef make_thing(x, y=1):\n    \"Make it.\"\n    return x\n\nclass Widget(object):\n    pass\n\nCONST = 5\n")
+
+(defn _temp-module []
+  (setv d (Path (tempfile.mkdtemp)))
+  (.write_text (/ d "demo_mod.py") _PY-MODULE)
+  d)
+
+(defn test-static-module-extracts-symbols []
+  (setv module (ps.load-static-python-module (_temp-module) "demo-mod"))
+  (assert= (get module "module") "demo-mod")
+  (assert= (get module "documentation") "Module doc.")
+  (setv syms (get module "symbols"))
+  (assert= (sorted (list (.keys syms))) ["CONST" "Widget" "make-thing"])
+  (setv fn-sym (get syms "make-thing"))
+  (assert= (get fn-sym "kind") model.KIND-LOCAL-FUNCTION)
+  (assert= (get fn-sym "signature") "(make-thing x, y=1)")
+  (assert= (get fn-sym "documentation") "Make it.")
+  (assert-true (model.symbol-info? fn-sym))
+  (assert= (get (get syms "Widget") "kind") model.KIND-LOCAL-CLASS)
+  (assert= (get (get syms "CONST") "kind") model.KIND-LOCAL-VARIABLE))
+
+(defn test-static-module-member-and-module-symbols []
+  (setv root (_temp-module))
+  (setv member (ps.member-symbol root "make-thing" "demo-mod" "make-thing"))
+  (assert= (get member "name") "make-thing")
+  (setv mod-sym (ps.module-symbol root "demo-mod" "demo-mod"))
+  (assert= (get mod-sym "kind") model.KIND-MODULE)
+  (assert-true (model.source-range? (get mod-sym "source"))))
+
+(defn test-static-module-missing-returns-none []
+  (assert= (ps.load-static-python-module (Path (tempfile.mkdtemp)) "nope-missing") None))
 
 ;; ---------------------------------------------------------------------------
 ;; runner
