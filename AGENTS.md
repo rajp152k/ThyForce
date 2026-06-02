@@ -43,6 +43,15 @@ Do not reintroduce `polylith-cli` or `workspace.toml` unless explicitly requeste
 
 `polhy` is the repository's local tool for applying Polylith operations. The broader architecture rules in this file remain independent of any one domain or feature.
 
+## Supplementary notes (AGENTS/)
+
+Running, append-only knowledge lives in the `AGENTS/` directory alongside this file:
+
+- `AGENTS/hy-isms.md` — Hy language gotchas hit in this repo (no triple-quoted strings, f-string `!`-conversion vs `!`-in-symbols, decorator syntax, namespace-shim shadowing, `sys.executable` under the `hy` launcher, …).
+- `AGENTS/workflow-improvements.md` — tooling/process upgrades to pick up later (custom `polhy test` runner, model-based deps parser, `polhy create project`, deferred features).
+
+This root `AGENTS.md` holds the canonical, repo-wide conventions; it is auto-loaded by agent tooling at the repository root, so it stays here rather than moving inside `AGENTS/`. The `AGENTS/` files are the supplementary log. Keep both current.
+
 ## Polylith structure
 
 Use a disciplined Polylith layout:
@@ -273,7 +282,7 @@ Avoid putting reusable behavior directly in bases.
 - Bases contain entrypoints/adapters such as CLIs, HTTP handlers, workers, etc.
 - Components contain reusable domain/tooling functionality.
 - Projects represent buildable/deployable artifacts.
-- Do not create separate project islands prematurely. The current root package can serve as a bootstrap project for uv until project generation is deliberately designed.
+- Projects are deployable artifacts, created once a real one exists — which is now the case. Live projects under `projects/`: `hyground` (the Hy language server) and `polhy` (the workspace tooling). The root `pyproject.toml` is the **development project** — an editable install of all bricks that exposes `uv run polhy` / `uv run hyground` for in-repo work. Each `projects/<name>/pyproject.toml` is a slim standalone deployable. See the Projects section below.
 
 Example:
 
@@ -299,6 +308,34 @@ Recommended sequence:
 7. update AGENTS.md only if a convention changes
 8. commit a meaningful local increment
 ```
+
+## Projects (deployables)
+
+A project is a buildable/deployable artifact with its own `pyproject.toml` that composes a chosen set of bricks plus only the third-party deps that set needs. Bases stay bases; a project *includes* a base, it does not replace it.
+
+Current projects:
+
+```text
+projects/hyground/   lsp/engine + lsp/analyzer + lsp/providers + lsp/server + spec   (deps: hy, typeshed-client)
+projects/polhy/      polhy + polhy/cli                                                (deps: hy)
+```
+
+Packaging pattern (hatchling): the project `pyproject.toml` declares `[project]` metadata, slim `dependencies`, and `[project.scripts]`, then pulls bricks from the workspace root via `force-include` (paths are relative to the project file):
+
+```toml
+[tool.hatch.build.targets.wheel.force-include]
+"../../components/thyforce/__init__.py" = "thyforce/__init__.py"
+"../../components/thyforce/<domain>/<component>" = "thyforce/<domain>/<component>"
+"../../bases/thyforce/<domain>/<base>" = "thyforce/<domain>/<base>"
+```
+
+Install/run a project straight from git with uv:
+
+```bash
+uvx --from "git+https://github.com/rajp152k/ThyForce@master#subdirectory=projects/<name>" <script>
+```
+
+Do not bolt a wheel target onto the root `pyproject.toml` to ship bricks — that bundles everything under one distribution and defeats the point. Add a `projects/<name>/` instead. (Generating these files is a planned `polhy create project` command; see `AGENTS/workflow-improvements.md`.)
 
 ## Testing layout
 
@@ -353,7 +390,7 @@ For a new component/base, avoid the mistakes of early bootstrapping:
 - do not start with a flat or temporary namespace if the final domain path is known
 - do not split every internal module into a separate brick; split only around reusable capabilities with independent reasons to change
 - do not create microcomponents that cannot be imagined being used from anywhere else
-- do not create `projects/` entries until a real buildable/deployable artifact is being designed
+- do not create `projects/` entries until a real buildable/deployable artifact exists (now satisfied by `hyground` and `polhy`; see the Projects section)
 - do not hardcode names that should be config/data-driven
 - do not put logic in a CLI base that belongs in a component
 - do not rely on regex parsing when a real language/data parser is needed for correctness, except as an explicit prototype
@@ -376,12 +413,25 @@ feature/language-agnostic-polylith
 
 ## Useful current smoke checks
 
-For the current `polhy` development effort:
+Workspace + tests:
 
 ```bash
 uv run polhy check
-PYTHONPATH=bases:components uv run python -m thyforce.polhy.cli info
-PYTHONPATH=bases:components uv run python -m thyforce.polhy.cli deps
+uv run polhy deps
+PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/engine/test_core.hy
+PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/analyzer/test_core.hy
+PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/analyzer/test_index.hy
+PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/providers/test_core.hy
+PYTHONPATH=bases:components uv run hy tests/thyforce/lsp/server/test_core.hy
 PYTHONPATH=bases:components uv run hy tests/thyforce/polhy/test_polhy.hy
 PYTHONPATH=bases:components uv run hy tests/thyforce/spec/test_spec.hy
 ```
+
+Deployables (build + run from the project subdirs via uv):
+
+```bash
+uvx --from ./projects/hyground hyground --version
+uvx --from ./projects/polhy polhy info
+```
+
+Note: the `hy` launcher sets `sys.executable` to `hy`, which breaks libraries that subprocess `[python, -c, ...]` (e.g. typeshed stub lookup). Tests run under `hy`; the deployables run under Python via uvx, where that path works. See `AGENTS/hy-isms.md`.
