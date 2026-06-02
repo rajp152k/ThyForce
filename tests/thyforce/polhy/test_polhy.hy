@@ -17,7 +17,7 @@
    "paths" {"bases" "bases" "components" "components" "projects" "projects" "test-root" "tests"}
    "layout" {"theme" "loose"
              "brick-path" "{kind}/{namespace}/{name}"
-             "test-path" "{test-root}/{kind}/{namespace}/{name}"}
+             "test-path" "{test-root}/{namespace}/{name}"}
    "language" {"default" "hy"
                "adapters" {"hy" {"source-ext" ".hy"
                                     "test-ext" ".hy"
@@ -82,7 +82,7 @@
     (assert= (Path (get result "path")) brick-dir)
     (assert= (.read_text (/ brick-dir "core.hy") :encoding "utf-8") ";; component polhy/config\n(import os)\n")
     (assert-in "from acme.polhy.config import core" (.read_text (/ brick-dir "__init__.py") :encoding "utf-8"))
-    (assert (.exists (/ root "tests" "components" "acme" "polhy" "config" "test_core.hy")))
+    (assert (.exists (/ root "tests" "acme" "polhy" "config" "test_core.hy")))
     (finally (.cleanup td))))
 
 (defn test-create-nested-base []
