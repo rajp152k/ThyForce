@@ -22,6 +22,9 @@
 (defn test-workspace [[start None]]
   (testing.run start))
 
+(defn create-project [root name]
+  (projects.create-project root name))
+
 (defn workspace-root [[start None]]
   (config.workspace-root start))
 

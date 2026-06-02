@@ -314,7 +314,7 @@ Recommended sequence:
 
 ## Projects (deployables)
 
-A project is a buildable/deployable artifact with its own `pyproject.toml` that composes a chosen set of bricks plus only the third-party deps that set needs. Bases stay bases; a project *includes* a base, it does not replace it.
+A project is a buildable/deployable artifact: a `pyproject.toml` that composes a chosen set of bricks plus only the third-party deps that set needs. Bases stay bases; a project *includes* a base, it does not replace it.
 
 Current projects:
 
@@ -323,13 +323,23 @@ projects/hyground/   lsp/engine + lsp/analyzer + lsp/providers + lsp/server + sp
 projects/polhy/      polhy + polhy/cli                                                (deps: hy)
 ```
 
-Packaging pattern (hatchling): the project `pyproject.toml` declares `[project]` metadata, slim `dependencies`, and `[project.scripts]`, then pulls bricks from the workspace root via `force-include` (paths are relative to the project file):
+A project is **declared as data** in `projects/<name>/project.cfg.hy` (entry bricks + metadata); its `pyproject.toml` is **generated** by polhy — do not hand-edit the generated file:
 
-```toml
-[tool.hatch.build.targets.wheel.force-include]
-"../../components/thyforce/__init__.py" = "thyforce/__init__.py"
-"../../components/thyforce/<domain>/<component>" = "thyforce/<domain>/<component>"
-"../../bases/thyforce/<domain>/<base>" = "thyforce/<domain>/<base>"
+```hy
+(setv PROJECT
+  {"name" "hyground"
+   "version" "0.1.0"
+   "description" "..."
+   "bricks" ["lsp/server"]                                  ; entry bricks; the transitive closure is computed
+   "scripts" {"hyground" "thyforce.lsp.server.runner:main"}})
+```
+
+From this, polhy computes the transitive brick closure (via the form-based dependency report), the third-party libs the closure imports (version-pinned from the root development project), and emits the `[tool.hatch.build.targets.wheel.force-include]` mappings that pull each closure brick from the workspace root into `thyforce/...`:
+
+```bash
+uvx --from ./projects/polhy polhy create project <name>   # scaffold project.cfg.hy + generate pyproject
+uvx --from ./projects/polhy polhy sync                    # regenerate every project's pyproject from its cfg
+uvx --from ./projects/polhy polhy check                   # flags invalid project defs + pyproject drift
 ```
 
 Install/run a project straight from git with uv:
@@ -338,7 +348,7 @@ Install/run a project straight from git with uv:
 uvx --from "git+https://github.com/rajp152k/ThyForce@master#subdirectory=projects/<name>" <script>
 ```
 
-Do not bolt a wheel target onto the root `pyproject.toml` to ship bricks — that bundles everything under one distribution and defeats the point. Add a `projects/<name>/` instead. (Generating these files is a planned `polhy create project` command; see `AGENTS/workflow-improvements.md`.)
+Do not bolt a wheel target onto the root `pyproject.toml` to ship bricks, and do not hand-edit a generated project `pyproject.toml` — edit its `project.cfg.hy` and run `polhy sync`.
 
 ## Testing layout
 

@@ -3,51 +3,40 @@
 Running list of tooling/process upgrades surfaced during the HyGround port.
 Not blocking; harvest when convenient.
 
-## Custom test runner (high value)
+## polhy maturity (status)
 
-Today each test file is a standalone script with its own `run-tests` loop, run
-via `uv run hy tests/thyforce/<domain>/test_core.hy`, and CI lists every file by
-hand. Problems:
+The four-phase polhy maturation (deps → spec traces → test runner → project
+machinery) is **implemented**. What landed:
 
-- **`sys.executable` is the `hy` launcher** under `uv run hy ...`, which breaks
-  libraries that subprocess `[sys.executable, "-c", "<python>"]` (see
-  hy-isms.md: typeshed stub fallback). Running tests through **Python** instead of
-  the `hy` CLI fixes this and matches the production entrypoint.
-- No aggregate pass/fail across the suite; no auto-discovery (new files must be
-  added to CI manually).
+- **deps** — form-based (`forms.hy`: `hy.read-many` + walk import/require),
+  classified into brick / lib / stdlib edges (`{brick -> {bricks, libs}}`). The
+  regex scanner is retired.
+- **spec traces** — `thyforce.spec` `validate` returns path-precise problems
+  (`{path, pred, value, message}`); `explain` / `named` added; specs stay callable.
+- **`polhy test`** — discovers `tests/**/test_*.hy`, runs each through the
+  workspace `.venv` Python (real `sys.executable`, so typeshed works), aggregates
+  pass/fail + exit code. CI is one line: `uvx --from ./projects/polhy polhy test`.
+- **project machinery** — `projects/<name>/project.cfg.hy` declares entry bricks +
+  metadata; polhy computes the brick closure + libs (pinned from the root dev
+  project) and generates the `pyproject.toml`. `polhy create project` scaffolds,
+  `polhy sync` regenerates, `polhy check` flags invalid defs + pyproject drift.
 
-Proposal: a single runner that discovers `tests/**/test_*.hy`, imports each under
-Python (after `import hy`), invokes its `run-tests`, and returns an aggregate
-exit code. Natural home: a `polhy test` subcommand so CI is one line
-(`uvx --from ./projects/polhy polhy test`) and local runs are uniform. Keep
-per-file `run-tests` so files stay individually runnable.
+Still open:
 
-## polhy upgrades
-
-- **`polhy test`** — discover + run the Hy test suites (see above).
-- **deps parser** — currently regex over import/require lines (flagged prototype
-  in AGENTS.md). Replace with real parsing: `hy.read-many` the source, walk the
-  models for `import` / `require` expressions, and emit structured dep data
-  (module, alias, members, star). The engine port already shows model walking is
-  cheap; this removes the regex's blind spots (multi-clause, `:as`, members).
-- **`polhy check`** — deepen beyond namespace presence: assert each brick has its
-  interface file (`__init__.py`) and module file, and (once deps are model-based)
-  flag dependencies on bricks that don't exist.
-- **`polhy create project`** — generate a `projects/<name>/pyproject.toml` that
-  composes selected bricks into a deployable wheel. The first two projects
-  (`projects/hyground`, `projects/polhy`) were hand-written. The established
-  pattern: a standalone `[project]` with slim deps + console script, plus
-  `[tool.hatch.build.targets.wheel.force-include]` mapping the chosen bricks from
-  the workspace root (`"../../components/thyforce/<brick>" = "thyforce/<brick>"`,
-  `"../../bases/thyforce/<domain>/<base>" = "thyforce/<domain>/<base>"`) and the
-  namespace root (`"../../components/thyforce/__init__.py" = "thyforce/__init__.py"`).
-  `uvx --from "git+<repo>@<ref>#subdirectory=projects/<name>" <script>` installs it.
-  A `polhy` command should compute the brick set from the base's transitive
-  deps (needs the model-based deps parser above) and emit this file.
-- **Namespace-shim scaffolding** — `polhy create` does NOT emit the `extend_path`
-  `__init__.py` for intermediate domain dirs under `components/`/`bases/`. A
-  missing one fails silently at import (a base resolved to the wrong package).
-  `create` should generate/repair these; `check` should assert they exist.
+- **`polhy check` depth** — beyond drift + namespace presence: assert each brick
+  has its interface/module files, flag brick deps on non-existent bricks, detect
+  cycles.
+- **Namespace-shim scaffolding** — `polhy create` (brick) does NOT emit the
+  `extend_path` `__init__.py` for intermediate domain dirs under
+  `components/`/`bases/`; a missing one fails silently at import. `create` should
+  generate/repair these and `check` should assert they exist. (Project generation
+  already emits domain `__init__.py` for grouping domains via force-include; the
+  on-disk brick scaffolding gap remains.)
+- **Shared `hy/forms` extraction** — `polhy/forms.hy` and `lsp/analyzer` both
+  parse Hy import/require forms. Once the analyzer is migrated onto a shared
+  parser, extract a `hy/forms` component both depend on (it now has two consumers).
+- **`polhy diff` / incremental** — bricks changed since a git ref → drive
+  `polhy test --since` and incremental builds (Polylith's headline feature).
 
 ## Porting workflow (multi-agent)
 

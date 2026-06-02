@@ -12,14 +12,18 @@
       (return candidate)))
   (raise (FileNotFoundError f"Cannot find {config-name}")))
 
+(defn load-data [path var-name]
+  "Evaluate a .cfg.hy file and return its named top-level variable."
+  (setv path (Path path))
+  (setv loader (type "ConfigLoader" #() {"path" (str path) "name" "thyforce_polhy_cfg"}))
+  (setv code (hy.importer._hy_source_to_code (loader) (.read_bytes path) (str path) "thyforce_polhy_cfg"))
+  (setv ns {"__name__" "thyforce_polhy_cfg"})
+  (exec code ns)
+  (get ns var-name))
+
 (defn load-config [[root None]]
   (setv root-path (workspace-root root))
-  (setv config-path (/ root-path DEFAULT-CONFIG-NAME))
-  (setv loader (type "ConfigLoader" #() {"path" (str config-path) "name" "thyforce_polhy_workspace_config"}))
-  (setv code (hy.importer._hy_source_to_code (loader) (.read_bytes config-path) (str config-path) "thyforce_polhy_workspace_config"))
-  (setv ns {"__name__" "thyforce_polhy_workspace_config"})
-  (exec code ns)
-  (get ns "CONFIG"))
+  (load-data (/ root-path DEFAULT-CONFIG-NAME) "CONFIG"))
 
 (defn get-in [data path [default None]]
   (setv current data)

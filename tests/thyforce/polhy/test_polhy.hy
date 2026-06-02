@@ -182,6 +182,36 @@
     (assert= (get result "total") 2)
     (finally (.cleanup td))))
 
+(defn test-project-machinery-closure-generate-and-drift []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (bricks.create-brick root cfg "components" "core/util")
+    (bricks.create-brick root cfg "bases" "app/cli")
+    (.write_text (/ root "bases" "acme" "app" "cli" "core.hy")
+                 "(import acme.core.util.core)\n(import hy)\n" :encoding "utf-8")
+    (setv result (projects.create-project root "bundle"
+                   :bricks ["app/cli"] :scripts {"bundle" "acme.app.cli.runner:main"}))
+    (assert (.exists (/ root "projects" "bundle" "project.cfg.hy")))
+    (setv pp (/ root "projects" "bundle" "pyproject.toml"))
+    (assert (.exists pp))
+    ;; transitive closure follows the brick dependency
+    (assert= (projects.closure ["app/cli"] (deps.dependency-report root)) #{"app/cli" "core/util"})
+    ;; generated pyproject ships both bricks, the lib, and the script
+    (setv text (.read_text pp :encoding "utf-8"))
+    (assert-in "\"../../bases/acme/app/cli\" = \"acme/app/cli\"" text)
+    (assert-in "\"../../components/acme/core/util\" = \"acme/core/util\"" text)
+    (assert-in "\"hy\"" text)
+    (assert-in "bundle = \"acme.app.cli.runner:main\"" text)
+    ;; create runs sync, so there is no drift
+    (assert (get (check.run root) "ok"))
+    ;; editing the generated pyproject is detected as drift
+    (.write_text pp (+ text "# drift\n") :encoding "utf-8")
+    (setv checked (check.run root))
+    (assert (not (get checked "ok")))
+    (assert-in "pyproject-drift" (lfor issue (get checked "projects") (get issue "code")))
+    (finally (.cleanup td))))
+
 (defn run-tests []
   (setv tests (sorted (list (gfor item (globals) :if (.startswith item "test_") item))))
   (setv failures [])

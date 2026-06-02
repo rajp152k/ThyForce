@@ -14,7 +14,7 @@
   (.add_parser sub "test")
   (setv create (.add_parser sub "create"))
   (setv create-sub (.add_subparsers create :dest "kind" :required True))
-  (for [kind ["component" "base"]]
+  (for [kind ["component" "base" "project"]]
     (setv p (.add_parser create-sub kind))
     (.add_argument p "name"))
   parser)
@@ -35,8 +35,11 @@
     (= command "create")
       (do
         (setv root (engine.workspace-root))
-        (setv cfg (engine.load-config root))
-        (setv kind (if (= args.kind "base")
-                       (engine.get-in cfg ["paths" "bases"] "bases")
-                       (engine.get-in cfg ["paths" "components"] "components")))
-        (print-json (engine.create-brick root cfg kind args.name)))))
+        (if (= args.kind "project")
+            (print-json (engine.create-project root args.name))
+            (do
+              (setv cfg (engine.load-config root))
+              (setv kind (if (= args.kind "base")
+                             (engine.get-in cfg ["paths" "bases"] "bases")
+                             (engine.get-in cfg ["paths" "components"] "components")))
+              (print-json (engine.create-brick root cfg kind args.name)))))))
