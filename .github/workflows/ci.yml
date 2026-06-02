@@ -51,3 +51,6 @@ jobs:
 
       - name: Run analysis index tests
         run: uv run hy tests/thyforce/analysis/test_index.hy
+
+      - name: Run service tests
+        run: uv run hy tests/thyforce/service/test_core.hy
