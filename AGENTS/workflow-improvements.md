@@ -33,6 +33,21 @@ files stay individually runnable.
 - **`polhy check`** — deepen beyond namespace presence: assert each brick has its
   interface file (`__init__.py`) and module file, and (once deps are model-based)
   flag dependencies on bricks that don't exist.
+- **`polhy create project`** — generate a `projects/<name>/pyproject.toml` that
+  composes selected bricks into a deployable wheel. The first two projects
+  (`projects/hyground`, `projects/polhy`) were hand-written. The established
+  pattern: a standalone `[project]` with slim deps + console script, plus
+  `[tool.hatch.build.targets.wheel.force-include]` mapping the chosen bricks from
+  the workspace root (`"../../components/thyforce/<brick>" = "thyforce/<brick>"`,
+  `"../../bases/thyforce/<domain>/<base>" = "thyforce/<domain>/<base>"`) and the
+  namespace root (`"../../components/thyforce/__init__.py" = "thyforce/__init__.py"`).
+  `uvx --from "git+<repo>@<ref>#subdirectory=projects/<name>" <script>` installs it.
+  A `polhy` command should compute the brick set from the base's transitive
+  deps (needs the model-based deps parser above) and emit this file.
+- **Namespace-shim scaffolding** — `polhy create` does NOT emit the `extend_path`
+  `__init__.py` for intermediate domain dirs under `components/`/`bases/`. A
+  missing one fails silently at import (a base resolved to the wrong package).
+  `create` should generate/repair these; `check` should assert they exist.
 
 ## Porting workflow (multi-agent)
 
