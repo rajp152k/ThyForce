@@ -8,7 +8,7 @@ one; do not rewrite an accepted record.
 | ADR | Title | Status |
 | --- | --- | --- |
 | [0000](0000-record-architecture-decisions.md) | Record architecture decisions | Accepted |
-| [0001](0001-persistence-facts-projections-store.md) | Persistence model: facts, projections, and a store interface | Proposed |
+| [0001](0001-persistence-facts-projections-store.md) | Persistence model: facts, projections, and a store interface | Accepted |
 
 ## Planned
 

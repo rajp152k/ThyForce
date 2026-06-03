@@ -1,6 +1,6 @@
 # 0001. Persistence model: facts, projections, and a store interface
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-06-01
 
 ## Context
@@ -61,7 +61,8 @@ A `store` Polylith component exposes a small interface, independent of backend:
 
 - `append-fact` — append one fact, assign its `id`, return the stored fact.
 - `read-facts` — read facts in `id` order, optionally over a range.
-- `project` / `snapshot` — fold a projection over the log to produce a view.
+- `project` — fold a projection over the log to produce a view (a cached
+  `snapshot` is deferred with the rest of the query layer).
 
 Backends are selected by **config data**, not hardcoded:
 
@@ -90,7 +91,10 @@ When that happens it is recorded as a new ADR.
 
 ## Validation
 
-This ADR is `Proposed`. It moves to `Accepted` once the `store` component
-implements this interface (SQLite + memory backends) and its tests confirm
-append/read ordering and projection determinism. The implementation is the proof;
-this record is the decision it proves.
+This ADR was `Proposed` and is now `Accepted`: the `thyforce/store` component
+(`components/thyforce/store/`) implements this interface with `sqlite` (WAL,
+default) and `memory` backends, validating facts at the boundary with
+`thyforce/spec`. Its tests (`tests/thyforce/store/test_store.hy`) confirm
+`id`-ordered append/read, range reads, projection folding **and** replay
+determinism, fact isolation from caller mutation, and sqlite durability across a
+reopen. The implementation is the proof; this record is the decision it proves.
