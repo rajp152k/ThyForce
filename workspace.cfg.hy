@@ -15,5 +15,6 @@
      {"hy"
        {"component-core" ";; {name} component implementation\n"
         "base-core" ";; {name} base implementation\n"
+        "namespace-shim" "from pkgutil import extend_path\n__path__ = extend_path(__path__, __name__)\n"
         "interface" "import hy\nfrom {namespace}.{import-name} import core\n\n__all__ = [\"core\"]\n"
         "test" "import hy\nfrom {namespace}.{import-name} import core\n\n\ndef test_sample():\n    assert core is not None\n"}}})

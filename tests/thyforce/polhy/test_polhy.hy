@@ -211,6 +211,98 @@
     (assert-in "pyproject-drift" (lfor issue (get checked "projects") (get issue "code")))
     (finally (.cleanup td))))
 
+(defn issue-codes [issues]
+  (lfor i issues (get i "code")))
+
+(defn test-create-emits-namespace-shims []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (setv result (bricks.create-brick root cfg "components" "foo/bar"))
+    (setv ns-init (/ root "components" "acme" "__init__.py"))
+    (setv domain-init (/ root "components" "acme" "foo" "__init__.py"))
+    (setv iface (/ root "components" "acme" "foo" "bar" "__init__.py"))
+    (assert-in "extend_path" (.read_text ns-init :encoding "utf-8"))
+    (assert-in "extend_path" (.read_text domain-init :encoding "utf-8"))
+    ;; the brick's own __init__.py is the interface, not a shim
+    (assert-in "from acme.foo.bar import core" (.read_text iface :encoding "utf-8"))
+    (assert (not (in "extend_path" (.read_text iface :encoding "utf-8"))))
+    (assert= (len (get result "shims")) 2)
+    (finally (.cleanup td))))
+
+(defn test-create-preserves-domain-as-brick-interface []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (bricks.create-brick root cfg "components" "pkg")
+    (setv pkg-init (/ root "components" "acme" "pkg" "__init__.py"))
+    (assert-in "from acme.pkg import core" (.read_text pkg-init :encoding "utf-8"))
+    ;; creating a sub-brick must NOT clobber pkg's interface with a shim
+    (bricks.create-brick root cfg "components" "pkg/sub")
+    (assert-in "from acme.pkg import core" (.read_text pkg-init :encoding "utf-8"))
+    (assert-in "from acme.pkg.sub import core"
+               (.read_text (/ root "components" "acme" "pkg" "sub" "__init__.py") :encoding "utf-8"))
+    (finally (.cleanup td))))
+
+(defn test-check-detects-missing-namespace-shim []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (bricks.create-brick root cfg "components" "foo/bar")
+    (.unlink (/ root "components" "acme" "foo" "__init__.py"))
+    (setv checked (check.run root))
+    (assert (not (get checked "ok")))
+    (assert-in "missing-namespace-shim" (issue-codes (get checked "bricks")))
+    (finally (.cleanup td))))
+
+(defn test-check-detects-missing-interface []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (bricks.create-brick root cfg "components" "demo")
+    (.unlink (/ root "components" "acme" "demo" "__init__.py"))
+    (setv checked (check.run root))
+    (assert (not (get checked "ok")))
+    (assert-in "missing-interface" (issue-codes (get checked "bricks")))
+    (finally (.cleanup td))))
+
+(defn test-check-detects-missing-brick-dep []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (bricks.create-brick root cfg "components" "demo")
+    (.write_text (/ root "components" "acme" "demo" "core.hy")
+                 "(import acme.ghost.core)\n(import hy)\n" :encoding "utf-8")
+    (setv checked (check.run root))
+    (assert (not (get checked "ok")))
+    (setv dep (next (gfor i (get checked "deps") :if (= (get i "code") "missing-brick-dep") i)))
+    (assert= (get dep "brick") "demo")
+    (assert= (get dep "module") "acme.ghost.core")
+    (finally (.cleanup td))))
+
+(defn test-check-detects-dependency-cycle []
+  (setv [td root] (make-workspace))
+  (try
+    (setv cfg (config.load-config root))
+    (bricks.create-brick root cfg "components" "alpha")
+    (bricks.create-brick root cfg "components" "beta")
+    (.write_text (/ root "components" "acme" "alpha" "core.hy")
+                 "(import acme.beta.core)\n(import hy)\n" :encoding "utf-8")
+    (.write_text (/ root "components" "acme" "beta" "core.hy")
+                 "(import acme.alpha.core)\n(import hy)\n" :encoding "utf-8")
+    (setv checked (check.run root))
+    (assert (not (get checked "ok")))
+    (setv cyc (next (gfor i (get checked "deps") :if (= (get i "code") "dependency-cycle") i)))
+    (assert= (get cyc "bricks") ["alpha" "beta"])
+    (finally (.cleanup td))))
+
+(defn test-cycles-detects-sccs []
+  (assert= (deps.cycles :report {"a" {"bricks" ["b"]} "b" {"bricks" ["a"]} "c" {"bricks" []}})
+           [["a" "b"]])
+  (assert= (deps.cycles :report {"a" {"bricks" ["b"]} "b" {"bricks" []}}) [])
+  (assert= (deps.cycles :report {"a" {"bricks" ["b"]} "b" {"bricks" ["c"]} "c" {"bricks" ["a"]}})
+           [["a" "b" "c"]]))
+
 (defn run-tests []
   (setv tests (sorted (list (gfor item (globals) :if (.startswith item "test_") item))))
   (setv failures [])

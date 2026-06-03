@@ -70,3 +70,80 @@ Internal bricks win by longest matching import-name prefix, so nested bricks
     (setv (get report (get b "name"))
           {"bricks" (sorted brick-deps) "libs" (sorted libs)}))
   report)
+
+(defn brick-graph [report]
+  "Adjacency map brick -> sorted brick deps, restricted to bricks in REPORT."
+  (setv nodes (set (.keys report)))
+  (setv graph {})
+  (for [[name info] (.items report)]
+    (setv (get graph name) (sorted (lfor d (.get info "bricks" []) :if (in d nodes) d))))
+  graph)
+
+(defn strongly-connected-components [graph]
+  "Tarjan's SCCs of GRAPH (adjacency map node -> list of successors)."
+  (setv counter [0])
+  (setv index {})
+  (setv lowlink {})
+  (setv stack [])
+  (setv on-stack (set))
+  (setv result [])
+  (defn strongconnect [node]
+    (setv (get index node) (get counter 0))
+    (setv (get lowlink node) (get counter 0))
+    (setv (get counter 0) (+ (get counter 0) 1))
+    (.append stack node)
+    (.add on-stack node)
+    (for [succ (.get graph node [])]
+      (cond
+        (not (in succ index))
+          (do
+            (strongconnect succ)
+            (setv (get lowlink node) (min (get lowlink node) (get lowlink succ))))
+        (in succ on-stack)
+          (setv (get lowlink node) (min (get lowlink node) (get index succ)))))
+    (when (= (get lowlink node) (get index node))
+      (setv component [])
+      (while True
+        (setv w (.pop stack))
+        (.discard on-stack w)
+        (.append component w)
+        (when (= w node) (break)))
+      (.append result component)))
+  (for [node (sorted (.keys graph))]
+    (when (not (in node index))
+      (strongconnect node)))
+  result)
+
+(defn cycles [[report None] [start None]]
+  "Brick dependency cycles: each a sorted list of bricks in a >1-node SCC."
+  (when (is report None)
+    (setv report (dependency-report start)))
+  (setv out [])
+  (for [scc (strongly-connected-components (brick-graph report))]
+    (when (> (len scc) 1)
+      (.append out (sorted scc))))
+  (sorted out))
+
+(defn dangling-refs [[start None]]
+  "Intra-namespace imports that resolve to no brick (missing brick or typo).
+
+Such a reference is otherwise silently misclassified as a third-party library,
+so it is surfaced explicitly. Returns [{brick, module} ...].
+  "
+  (setv data (workspace.info start))
+  (setv namespace (get data "namespace"))
+  (setv cfg (config_core.load-config (get data "root")))
+  (setv adapter (config_core.adapter cfg))
+  (setv bricks (+ (get data "bases") (get data "components")))
+  (setv prefix (+ namespace "."))
+  (setv out [])
+  (for [b bricks]
+    (setv flagged (set))
+    (for [module (brick-modules b adapter)]
+      (when (or (= module namespace) (.startswith module prefix))
+        (setv [kind name] (classify module bricks namespace))
+        (when (!= kind "brick")
+          (.add flagged module))))
+    (for [module (sorted flagged)]
+      (.append out {"brick" (get b "name") "module" module})))
+  out)
