@@ -1,12 +1,12 @@
 (import io)
 (import hy)
-(import thyforce.lsp.engine.spec :as spec)
-(import thyforce.lsp.engine.server :as server)
-(import thyforce.lsp.engine.jsonrpc :as jsonrpc)
+(import thyforce.dispatch.registry :as spec)
+(import thyforce.lsp.engine.core :as server)
+(import thyforce.dispatch.jsonrpc :as jsonrpc)
 (import thyforce.lsp.engine.stdio :as stdio)
 (import thyforce.lsp.engine.workspace :as ws)
 (import thyforce.lsp.engine.protocol :as proto)
-(require thyforce.lsp.engine.spec [defregistry on-request on-notification on-command])
+(require thyforce.dispatch.registry [defregistry on-request on-notification on-command])
 
 ;; ---------------------------------------------------------------------------
 ;; fixture registry (mirrors the engine's example server surface)

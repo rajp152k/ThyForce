@@ -8,10 +8,10 @@ managed by the engine's workspace helpers. `make-server` assembles a runnable
 chyls server.
 "
 
-(import thyforce.lsp.engine.server :as engine)
+(import thyforce.lsp.engine.core :as engine)
 (import thyforce.lsp.engine.protocol :as proto)
 (import thyforce.lsp.engine.workspace :as ws)
-(require thyforce.lsp.engine.spec [defregistry on-request on-notification on-command])
+(require thyforce.dispatch.registry [defregistry on-request on-notification on-command])
 
 (import thyforce.lsp.analyzer.index :as index)
 (import thyforce.lsp.analyzer.word :as word)

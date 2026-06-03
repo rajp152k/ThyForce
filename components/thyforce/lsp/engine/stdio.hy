@@ -1,13 +1,13 @@
 "LSP stdio framing and serving helpers.
 
 Transport is intentionally small and separate from server generation. Any code
-that can provide parsed JSON-RPC dictionaries can reuse `thyforce.lsp.engine.server.dispatch`;
+that can provide parsed JSON-RPC dictionaries can reuse `thyforce.dispatch.core.dispatch`;
 stdio just adds Language Server Protocol `Content-Length` framing.
 "
 
 (import json)
-(import thyforce.lsp.engine.jsonrpc [error-response PARSE-ERROR dump-message])
-(import thyforce.lsp.engine.server [dispatch])
+(import thyforce.dispatch.jsonrpc [error-response PARSE-ERROR dump-message])
+(import thyforce.dispatch.core [dispatch])
 
 (defn encode-message [message]
   "Encode a JSON-RPC message as an LSP Content-Length frame."

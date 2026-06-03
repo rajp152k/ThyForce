@@ -1,4 +1,4 @@
-"Small JSON-RPC 2.0 message constructors used by the LSP engine."
+"JSON-RPC 2.0 message constructors and error codes used by the dispatch engine."
 
 (import json)
 

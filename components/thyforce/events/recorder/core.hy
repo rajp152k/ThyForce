@@ -8,8 +8,8 @@ servers. State is threaded immutably by the engine; the store write is the
 handler's side effect.
 "
 
-(import thyforce.lsp.engine.core :as engine)
-(import thyforce.lsp.engine.spec :as feature)
+(import thyforce.dispatch.core :as engine)
+(import thyforce.dispatch.registry :as feature)
 (import thyforce.store.core :as store)
 
 (setv VERSION "0.1.0")

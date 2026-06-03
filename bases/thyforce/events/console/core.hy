@@ -8,7 +8,7 @@ prints any response messages. No LSP lifecycle is involved.
 
 (import sys argparse json)
 (import thyforce.events.recorder.core :as recorder)
-(import thyforce.lsp.engine.core :as engine)
+(import thyforce.dispatch.core :as engine)
 (import thyforce.store.core :as store)
 
 (defn run [server lines [emit print]]

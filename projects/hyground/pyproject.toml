@@ -17,6 +17,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel.force-include]
 "../../components/thyforce/__init__.py" = "thyforce/__init__.py"
+"../../components/thyforce/dispatch" = "thyforce/dispatch"
 "../../components/thyforce/lsp/__init__.py" = "thyforce/lsp/__init__.py"
 "../../components/thyforce/lsp/analyzer" = "thyforce/lsp/analyzer"
 "../../components/thyforce/lsp/engine" = "thyforce/lsp/engine"

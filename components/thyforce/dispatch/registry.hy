@@ -1,4 +1,4 @@
-"Data model and Hy macros for LSP registries.
+"Data model and Hy macros for dispatch registries.
 
 The public constructors return ordinary Python dictionaries. Macros are only a
 compact authoring layer over the same dictionaries; they do not hide runtime
@@ -40,15 +40,15 @@ registration side effects.
      "metadata" metadata}))
 
 (defn request [method handler [options None] [capability None] [doc None] [metadata None]]
-  "Describe an LSP request handler as data."
+  "Describe a request handler as data."
   (make-feature method handler "request" options capability doc metadata))
 
 (defn notification [method handler [options None] [capability None] [doc None] [metadata None]]
-  "Describe an LSP notification handler as data."
+  "Describe a notification handler as data."
   (make-feature method handler "notification" options capability doc metadata))
 
 (defn command [name handler [doc None] [metadata None]]
-  "Describe a workspace/executeCommand handler as data."
+  "Describe a command handler as data."
   (_without-none
     {"kind" "command"
      "command" (_non-empty-string name "command")
@@ -158,23 +158,23 @@ functions before serving.
 (defmacro defregistry [name #* specs]
   "Define a registry value from inline feature specs."
   `(do
-     (import thyforce.lsp.engine.spec)
-     (setv ~name (thyforce.lsp.engine.spec.registry ~@specs))))
+     (import thyforce.dispatch.registry)
+     (setv ~name (thyforce.dispatch.registry.registry ~@specs))))
 
 (defmacro on-request [method handler #* args]
   "Macro sugar for a request spec; stores the handler symbol as data."
   `(do
-     (import thyforce.lsp.engine.spec)
-     (thyforce.lsp.engine.spec.request ~method ~(str handler) ~@args)))
+     (import thyforce.dispatch.registry)
+     (thyforce.dispatch.registry.request ~method ~(str handler) ~@args)))
 
 (defmacro on-notification [method handler #* args]
   "Macro sugar for a notification spec; stores the handler symbol as data."
   `(do
-     (import thyforce.lsp.engine.spec)
-     (thyforce.lsp.engine.spec.notification ~method ~(str handler) ~@args)))
+     (import thyforce.dispatch.registry)
+     (thyforce.dispatch.registry.notification ~method ~(str handler) ~@args)))
 
 (defmacro on-command [name handler #* args]
   "Macro sugar for a command spec; stores the handler symbol as data."
   `(do
-     (import thyforce.lsp.engine.spec)
-     (thyforce.lsp.engine.spec.command ~name ~(str handler) ~@args)))
+     (import thyforce.dispatch.registry)
+     (thyforce.dispatch.registry.command ~name ~(str handler) ~@args)))

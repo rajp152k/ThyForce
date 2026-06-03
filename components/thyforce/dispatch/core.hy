@@ -1,8 +1,21 @@
-"Data-oriented LSP server generation and JSON-RPC dispatch."
+"Transport-agnostic dispatch engine: registries, effects, and immutable state.
 
+A server is a plain dictionary generated from registry data and handler functions.
+Runtime state is a dictionary, replaced immutably by handlers that return `effect`
+values. Dispatch routes a message by method to one of:
+
+- a `builtins` entry  — protocol/lifecycle handlers supplied as data by the caller
+                        (e.g. the LSP layer registers initialize/shutdown here),
+- a registry feature  — request/notification handlers, or
+- nothing             — a method-not-found error.
+
+The engine knows nothing about any specific protocol's lifecycle; lifecycle is
+data (`builtins`), which lets non-LSP adapters reuse the same dispatch core.
+"
+
+(import thyforce.dispatch.jsonrpc [response error-response PARSE-ERROR METHOD-NOT-FOUND INVALID-REQUEST INTERNAL-ERROR])
+(import thyforce.dispatch.registry [assert-valid-registry])
 (import json)
-(import thyforce.lsp.engine.jsonrpc [response error-response PARSE-ERROR METHOD-NOT-FOUND INVALID-REQUEST INTERNAL-ERROR])
-(import thyforce.lsp.engine.spec [assert-valid-registry])
 
 (setv MISSING (object))
 
@@ -43,7 +56,9 @@
   "Generate a runtime server map from registry data and handler functions.
 
 The returned value is a plain dictionary. Runtime state is also a dictionary and
-is replaced immutably by handlers that return `effect` values.
+is replaced immutably by handlers that return `effect` values. `builtins` (a map
+of method -> `(server message has-id) -> {server, messages}`) is empty here; a
+protocol layer injects lifecycle/command handlers as data.
   "
   (setv handler-map (or handlers {}))
   (assert-valid-registry registry handler-map strict-handlers)
@@ -55,6 +70,7 @@ is replaced immutably by handlers that return `effect` values.
    "registry" (tuple registry)
    "features" features
    "commands" commands
+   "builtins" {}
    "handlers" handler-map
    "state" (if (is state None) {} state)
    "capabilities" (merge-maps (or capabilities {}) registry-capabilities)})
@@ -68,14 +84,6 @@ is replaced immutably by handlers that return `effect` values.
 (defn update-state [server updates]
   "Return a server whose state is merged with `updates`."
   (with-state server (merge-maps (get server "state") updates)))
-
-(defn _update-lifecycle [server updates]
-  (setv state (dict (get server "state")))
-  (setv lifecycle (dict (.get state "lifecycle" {})))
-  (for [[key value] (.items updates)]
-    (setv (get lifecycle key) value))
-  (setv (get state "lifecycle") lifecycle)
-  (with-state server state))
 
 (defn effect [[result None] [state MISSING] [notifications None]]
   "Wrap a handler result with optional state replacement and notifications."
@@ -112,11 +120,6 @@ returned mapping keeps the original registry key while looking up both forms.
       (when (is-not value MISSING)
         (setv (get out name) value))))
   out)
-
-(defn _initialize-result [server]
-  {"capabilities" (get server "capabilities")
-   "serverInfo" {"name" (get server "name")
-                 "version" (get server "version")}})
 
 (defn _result-messages [id has-id result notifications]
   (setv messages [])
@@ -174,7 +177,12 @@ returned mapping keeps the original registry key while looking up both forms.
         server id has-id INTERNAL-ERROR (str exc)
         {"exception" (getattr (type exc) "__name__")}))))
 
-(defn _dispatch-command [server message has-id]
+(defn dispatch-command [server message has-id]
+  "Dispatch a registered command named by the message params `command` key.
+
+Generic over protocol: the LSP layer wires this to the `workspace/executeCommand`
+method via `builtins`, but any caller can route to it.
+  "
   (setv id (.get message "id" None))
   (setv params (or (.get message "params") {}))
   (setv name (.get params "command"))
@@ -192,33 +200,12 @@ returned mapping keeps the original registry key while looking up both forms.
         server id has-id INTERNAL-ERROR (str exc)
         {"exception" (getattr (type exc) "__name__")}))))
 
-(defn _handle-initialize [server message has-id]
-  (setv params (or (.get message "params") {}))
-  (setv next-server
-    (_update-lifecycle
-      server
-      {"initializeParams" params
-       "initialized" False
-       "shutdown" False
-       "exiting" False}))
-  {"server" next-server
-   "messages" (_result-messages (.get message "id" None) has-id (_initialize-result next-server) [])})
-
-(defn _handle-initialized [server]
-  {"server" (_update-lifecycle server {"initialized" True}) "messages" []})
-
-(defn _handle-shutdown [server message has-id]
-  (setv next-server (_update-lifecycle server {"shutdown" True}))
-  {"server" next-server
-   "messages" (_result-messages (.get message "id" None) has-id None [])})
-
-(defn _handle-exit [server]
-  {"server" (_update-lifecycle server {"exiting" True}) "messages" []})
-
 (defn dispatch-message [server message]
   "Dispatch one parsed JSON-RPC message against a generated server map.
 
-Returns a map with `server` and `messages` keys.
+Routing order: `builtins` (caller-supplied protocol/lifecycle handlers), then
+registry features, then method-not-found. Returns a map with `server` and
+`messages` keys.
   "
   (when (not (isinstance message dict))
     (return {"server" server
@@ -230,17 +217,10 @@ Returns a map with `server` and `messages` keys.
   (setv method (.get message "method"))
   (when (is method None)
     (return (_error-result server id has-id INVALID-REQUEST "message is missing method" None True)))
+  (setv builtins (.get server "builtins" {}))
   (cond
-    (= method "initialize")
-      (_handle-initialize server message has-id)
-    (= method "initialized")
-      (_handle-initialized server)
-    (= method "shutdown")
-      (_handle-shutdown server message has-id)
-    (= method "exit")
-      (_handle-exit server)
-    (= method "workspace/executeCommand")
-      (_dispatch-command server message has-id)
+    (in method builtins)
+      ((get builtins method) server message has-id)
     (in method (get server "features"))
       (_dispatch-spec server message (get (get server "features") method) has-id)
     True

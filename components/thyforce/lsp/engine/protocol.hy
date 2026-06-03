@@ -4,7 +4,7 @@ The engine intentionally keeps protocol objects as dictionaries. These helpers
 cover common shapes without forcing a generated type layer on framework users.
 "
 
-(import thyforce.lsp.engine.jsonrpc [notification])
+(import thyforce.dispatch.jsonrpc [notification])
 
 (setv TEXT-DOCUMENT-SYNC-NONE 0)
 (setv TEXT-DOCUMENT-SYNC-FULL 1)
