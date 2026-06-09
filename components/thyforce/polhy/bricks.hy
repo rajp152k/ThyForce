@@ -39,11 +39,7 @@
   (if text text DEFAULT-NAMESPACE-SHIM))
 
 (defn ancestor-package-dirs [root config kind name]
-  "Package dirs above a brick that must carry a namespace-spanning __init__.py.
-
-The namespace root dir plus each grouping-domain dir between it and the brick
-dir, but NOT the brick dir itself (that holds the interface).
-  "
+  "Dirs above a brick that must carry a namespace-spanning __init__.py."
   (setv ns (get config "namespace"))
   (setv kind-root (/ (Path root) kind ns))
   (setv parts (.split name "/"))
@@ -53,11 +49,7 @@ dir, but NOT the brick dir itself (that holds the interface).
   dirs)
 
 (defn ensure-namespace-shims [root config kind name [language None]]
-  "Write a namespace shim into each missing ancestor package dir of a brick.
-
-Never overwrites an existing __init__.py: it may be a brick interface or a
-hand-edited shim. Returns the list of created paths.
-  "
+  "Write namespace shim into each ancestor package dir lacking __init__.py."
   (setv text (namespace-shim-text config language))
   (setv created [])
   (for [dir (ancestor-package-dirs root config kind name)]

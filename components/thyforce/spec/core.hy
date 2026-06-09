@@ -1,20 +1,8 @@
-"Predicate-based specs with path-precise validation traces.
-
-A spec is a callable predicate (value -> truthy/falsey); `(str? x)` returns a
-bool and any spec can be called directly. Combinators additionally attach a
-`_spec_meta` dict describing their structure, so `explain`/`validate` can walk
-the spec tree and report exactly which path failed which predicate.
-
-    (validate spec value) -> {\"ok\" bool \"value\" value \"problems\" [problem ...]}
-    problem               -> {\"path\" [key|index ...] \"pred\" str \"value\" any \"message\" str}
-"
+"Predicate-based specs with path-precise validation traces."
 
 (import collections.abc [Mapping])
 (import hy)
 
-;; ---------------------------------------------------------------------------
-;; spec metadata
-;; ---------------------------------------------------------------------------
 
 (defn _with-meta [pred meta]
   (setv pred._spec_meta meta)
@@ -27,10 +15,6 @@ the spec tree and report exactly which path failed which predicate.
   "Wrap PRED with a human-readable NAME for traces (use on leaf predicates)."
   (defn wrapped [value] (pred value))
   (_with-meta wrapped {"kind" "pred" "name" name}))
-
-;; ---------------------------------------------------------------------------
-;; primitive predicates
-;; ---------------------------------------------------------------------------
 
 (defn str? [value] (isinstance value str))
 (defn int? [value] (and (isinstance value int) (not (isinstance value bool))))
@@ -47,9 +31,6 @@ the spec tree and report exactly which path failed which predicate.
 (defn valid? [pred value]
   (bool (pred value)))
 
-;; ---------------------------------------------------------------------------
-;; combinators
-;; ---------------------------------------------------------------------------
 
 (defn and-spec [#* preds]
   (_with-meta
@@ -70,11 +51,6 @@ the spec tree and report exactly which path failed which predicate.
   (_with-meta
     (fn [value] (and (list? value) (all (gfor item value (pred item)))))
     {"kind" "list-of" "elem" pred}))
-
-(defn has-key? [key]
-  (_with-meta
-    (fn [value] (and (map? value) (in key value)))
-    {"kind" "pred" "name" (.format "has-key?({})" key)}))
 
 (defn key-pred [key pred]
   (_with-meta
@@ -100,9 +76,6 @@ the spec tree and report exactly which path failed which predicate.
      (import thyforce.spec.core :as _thyforce_spec_core)
      (_thyforce_spec_core.genspec* ~spec-form)))
 
-;; ---------------------------------------------------------------------------
-;; explanation / validation
-;; ---------------------------------------------------------------------------
 
 (defn _pred-name [spec]
   (setv meta (_meta spec))
@@ -133,7 +106,7 @@ the spec tree and report exactly which path failed which predicate.
   (_problem full "required" None (.format "{}: missing key" (_path-str full))))
 
 (defn explain [spec value [path None]]
-  "Return a list of problem maps describing why VALUE fails SPEC (empty if valid)."
+  "Return problem maps describing why VALUE fails SPEC (empty list if valid)."
   (setv path (or path []))
   (setv meta (_meta spec))
   (setv kind (if meta (get meta "kind") "pred"))
@@ -173,6 +146,6 @@ the spec tree and report exactly which path failed which predicate.
       (if (valid? spec value) [] [(_problem path (_pred-name spec) value)])))
 
 (defn validate [spec value]
-  "Validate VALUE against SPEC; return {ok, value, problems} with path-precise traces."
+  "Validate VALUE against SPEC; return {ok, value, problems} map."
   (setv problems (explain spec value))
   {"ok" (= (len problems) 0) "value" value "problems" problems})

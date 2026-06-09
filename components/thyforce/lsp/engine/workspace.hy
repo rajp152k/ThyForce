@@ -1,9 +1,4 @@
-"Generic immutable-ish workspace/document state helpers.
-
-The helpers here are deliberately framework-level and language-agnostic. They
-store LSP text documents as plain dictionaries under the `documents` state key and
-return replacement state maps instead of mutating the caller's state in place.
-"
+"Immutable workspace/document state helpers: open, close, change, and position encoding."
 
 (setv POSITION-ENCODING-UTF8 "utf-8")
 (setv POSITION-ENCODING-UTF16 "utf-16")
@@ -90,11 +85,7 @@ return replacement state maps instead of mutating the caller's state in place.
   index)
 
 (defn position-to-offset [text position [encoding POSITION-ENCODING-UTF16]]
-  "Convert a line/character position to a Python string offset.
-
-`encoding` may be `utf-16`, `utf-8`, `utf-32`, `codepoint`, or `python`. LSP
-clients default to UTF-16 unless `positionEncoding` is negotiated.
-  "
+  "Convert a line/character LSP position to a Python string offset."
   (setv target-line (max 0 (int (.get position "line" 0))))
   (setv target-char (max 0 (int (.get position "character" 0))))
   (setv offset 0)
@@ -118,11 +109,7 @@ clients default to UTF-16 unless `positionEncoding` is negotiated.
   {"line" line "character" (encoded-length line-text encoding)})
 
 (defn apply-text-change [text change [encoding POSITION-ENCODING-UTF16]]
-  "Apply one LSP content change to text.
-
-Full-document changes are represented by a change with no `range`; incremental
-changes use `range.start` and `range.end` positions.
-  "
+  "Apply one LSP content change (full-document or incremental range) to text."
   (when (not (in "range" change))
     (return (get change "text")))
   (setv change-range (get change "range"))

@@ -1,17 +1,4 @@
-"Transport-agnostic dispatch engine: registries, effects, and immutable state.
-
-A server is a plain dictionary generated from registry data and handler functions.
-Runtime state is a dictionary, replaced immutably by handlers that return `effect`
-values. Dispatch routes a message by method to one of:
-
-- a `builtins` entry  — protocol/lifecycle handlers supplied as data by the caller
-                        (e.g. the LSP layer registers initialize/shutdown here),
-- a registry feature  — request/notification handlers, or
-- nothing             — a method-not-found error.
-
-The engine knows nothing about any specific protocol's lifecycle; lifecycle is
-data (`builtins`), which lets non-LSP adapters reuse the same dispatch core.
-"
+"Transport-agnostic dispatch engine: registries, effects, and immutable state."
 
 (import thyforce.dispatch.jsonrpc [response error-response PARSE-ERROR METHOD-NOT-FOUND INVALID-REQUEST INTERNAL-ERROR])
 (import thyforce.dispatch.registry [assert-valid-registry])
@@ -53,13 +40,7 @@ data (`builtins`), which lets non-LSP adapters reuse the same dispatch core.
   [features commands (merge-maps capabilities (_command-capabilities commands))])
 
 (defn make-server [name version registry handlers [state None] [capabilities None] [metadata None] [strict-handlers True]]
-  "Generate a runtime server map from registry data and handler functions.
-
-The returned value is a plain dictionary. Runtime state is also a dictionary and
-is replaced immutably by handlers that return `effect` values. `builtins` (a map
-of method -> `(server message has-id) -> {server, messages}`) is empty here; a
-protocol layer injects lifecycle/command handlers as data.
-  "
+  "Build and return a runtime server map from registry data and handler functions."
   (setv handler-map (or handlers {}))
   (assert-valid-registry registry handler-map strict-handlers)
   (setv [features commands registry-capabilities] (_index-registry registry))
@@ -95,11 +76,7 @@ protocol layer injects lifecycle/command handlers as data.
   out)
 
 (defn handlers-from-namespace [namespace registry]
-  "Collect handlers named by registry specs from a module/object or mapping.
-
-Hy symbols such as `did-open` compile to Python attributes named `did_open`; the
-returned mapping keeps the original registry key while looking up both forms.
-  "
+  "Collect handlers named by registry specs from a module/object or mapping."
   (setv out {})
   (for [spec registry]
     (setv name (get spec "handler"))
@@ -178,11 +155,7 @@ returned mapping keeps the original registry key while looking up both forms.
         {"exception" (getattr (type exc) "__name__")}))))
 
 (defn dispatch-command [server message has-id]
-  "Dispatch a registered command named by the message params `command` key.
-
-Generic over protocol: the LSP layer wires this to the `workspace/executeCommand`
-method via `builtins`, but any caller can route to it.
-  "
+  "Dispatch a registered command named by the message params `command` key."
   (setv id (.get message "id" None))
   (setv params (or (.get message "params") {}))
   (setv name (.get params "command"))
@@ -201,12 +174,7 @@ method via `builtins`, but any caller can route to it.
         {"exception" (getattr (type exc) "__name__")}))))
 
 (defn dispatch-message [server message]
-  "Dispatch one parsed JSON-RPC message against a generated server map.
-
-Routing order: `builtins` (caller-supplied protocol/lifecycle handlers), then
-registry features, then method-not-found. Returns a map with `server` and
-`messages` keys.
-  "
+  "Dispatch one parsed JSON-RPC message against a server map; return `server` and `messages`."
   (when (not (isinstance message dict))
     (return {"server" server
              "messages" [(error-response None INVALID-REQUEST "message must be a JSON object")]}))

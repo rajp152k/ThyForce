@@ -1,10 +1,4 @@
-"Semantic token support for Hy source.
-
-Scanning is lexical and independent of workspace state. `resolve-symbol` is a
-callable accepting (token line character) and returning a symbol-info map or
-None, which lets callers plug in position-aware scoped resolution. A semantic
-token is a map {\"line\" \"start\" \"length\" \"token-type\"}.
-"
+"Semantic token scanning and LSP encoding for Hy source."
 
 (import thyforce.lsp.analyzer.model :as model)
 (import thyforce.lsp.analyzer.word [WORD-RE])

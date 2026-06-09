@@ -1,12 +1,4 @@
-"Workspace and document indexes.
-
-`DocumentIndex` reads one Hy document into definitions, scoped parameter symbols,
-import/require bindings, and parse/compile diagnostics. `WorkspaceIndex` is a
-server-owned (non-global) index over many documents plus per-root Python
-resolvers, and answers completion / resolution queries. All public symbol output
-is plain symbol-info maps (see model.hy); the internal parse intermediates below
-are lightweight classes kept close to the source for fidelity.
-"
+"Document and workspace indexes for Hy source files."
 
 (import builtins)
 (import inspect)
@@ -24,18 +16,12 @@ are lightweight classes kept close to the source for fidelity.
 (import thyforce.lsp.analyzer.resolver
         [PythonResolver find-workspace-root iter-hy-files symbol-from-object])
 
-;; ---------------------------------------------------------------------------
-;; diagnostics
-;; ---------------------------------------------------------------------------
 
 (defn parse-diagnostic [message [line 0] [character 0] [end-line 0] [end-character 1] [code "thyforce"]]
   "Build a parse/compile diagnostic map (zero-based, end-exclusive)."
   {"message" message "line" line "character" character
    "end-line" end-line "end-character" end-character "code" code})
 
-;; ---------------------------------------------------------------------------
-;; internal parse intermediates
-;; ---------------------------------------------------------------------------
 
 (defclass ScopedSymbol []
   (defn __init__ [self symbol scope]
@@ -68,9 +54,6 @@ are lightweight classes kept close to the source for fidelity.
           self.members members self.star star self.readers readers
           self.reader-star reader-star)))
 
-;; ---------------------------------------------------------------------------
-;; document index
-;; ---------------------------------------------------------------------------
 
 (defclass DocumentIndex []
   (defn __init__ [self uri source [module ""]]
@@ -272,9 +255,6 @@ are lightweight classes kept close to the source for fidelity.
     (when (is-not symbol None)
       (setv (get self.symbols (get symbol "name")) symbol))))
 
-;; ---------------------------------------------------------------------------
-;; workspace index
-;; ---------------------------------------------------------------------------
 
 (defclass WorkspaceIndex []
   "Explicit server-owned index; no process-global symbol table."
@@ -583,9 +563,6 @@ are lightweight classes kept close to the source for fidelity.
     (setv obj (.resolve-qualified (self.resolver-for-root root) name))
     (if (is-not obj None) (symbol-from-object name obj) None)))
 
-;; ---------------------------------------------------------------------------
-;; import / require parsing
-;; ---------------------------------------------------------------------------
 
 (defn _parse-import-specs [items]
   (setv specs [])
@@ -697,9 +674,6 @@ are lightweight classes kept close to the source for fidelity.
 (defn _is-star [model-form]
   (and (isinstance model-form Symbol) (= (str model-form) "*")))
 
-;; ---------------------------------------------------------------------------
-;; symbol helpers and core/builtin loading
-;; ---------------------------------------------------------------------------
 
 (defn _clone-symbol [symbol name]
   (setv out (dict symbol))
@@ -778,9 +752,6 @@ are lightweight classes kept close to the source for fidelity.
   (parse-diagnostic message :line line :character character
     :end-line end-line :end-character end-character :code code))
 
-;; ---------------------------------------------------------------------------
-;; Hy model helpers
-;; ---------------------------------------------------------------------------
 
 (defn _symbol-name [model-form]
   (if (isinstance model-form Symbol) (str model-form) ""))

@@ -1,11 +1,4 @@
-"Form-based dependency report.
-
-For each brick, parses its source with `forms.module-refs` and classifies every
-referenced module as a brick dependency (resolves to another brick's import
-name), a third-party library, or stdlib (dropped). Output:
-
-    {brick-name -> {\"bricks\" [dep-brick ...] \"libs\" [third-party ...]}}
-"
+"Form-based dependency report resolving each import as brick, lib, or stdlib."
 
 (import sys)
 (import pathlib [Path])
@@ -31,11 +24,7 @@ name), a third-party library, or stdlib (dropped). Output:
   (+ namespace "." (.replace brick-name "/" ".")))
 
 (defn classify [module bricks namespace]
-  "Classify MODULE as [\"brick\" name] / [\"lib\" top] / [\"stdlib\" top].
-
-Internal bricks win by longest matching import-name prefix, so nested bricks
-(`polhy/cli` vs `polhy`) resolve to the most specific one.
-  "
+  "Classify MODULE as [brick name] / [lib top] / [stdlib top]; longest prefix wins."
   (setv best-name None)
   (setv best-len -1)
   (for [b bricks]
@@ -125,11 +114,7 @@ Internal bricks win by longest matching import-name prefix, so nested bricks
   (sorted out))
 
 (defn dangling-refs [[start None]]
-  "Intra-namespace imports that resolve to no brick (missing brick or typo).
-
-Such a reference is otherwise silently misclassified as a third-party library,
-so it is surfaced explicitly. Returns [{brick, module} ...].
-  "
+  "Intra-namespace imports that resolve to no known brick; returns [{brick, module} ...]."
   (setv data (workspace.info start))
   (setv namespace (get data "namespace"))
   (setv cfg (config_core.load-config (get data "root")))

@@ -1,10 +1,4 @@
-"Hy core form docs.
-
-Hy compiler forms are not ordinary runtime Python values; many are pattern-macro
-wrappers with no useful __doc__. This table is deliberately explicit: small,
-versionable, and replaceable later by data generated from Hy's own metadata.
-Each entry is a map {\"signature\" str \"documentation\" str}.
-"
+"Hand-maintained documentation table for Hy compiler forms."
 
 (defn core-doc [signature documentation]
   {"signature" signature "documentation" documentation})

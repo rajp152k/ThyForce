@@ -1,10 +1,4 @@
-"Folding range support for Hy source.
-
-Folding deliberately does not call Hy's reader: editors ask for folding while
-buffers are incomplete, and a reader error should not disable structural folding
-for the rest of the file. A fold range is a plain map with zero-based
-start-line / start-character / end-line / end-character keys.
-"
+"Delimiter-based folding ranges for Hy source; reader-independent."
 
 (setv _OPEN-TO-CLOSE {"(" ")" "[" "]" "{" "}"})
 (setv _CLOSE-TO-OPEN (dfor [k v] (.items _OPEN-TO-CLOSE) v k))

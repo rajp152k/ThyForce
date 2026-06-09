@@ -1,12 +1,4 @@
-"Language service: LSP feature handlers binding analysis onto the lsp engine.
-
-Each handler receives a chyls event map ({\"state\" \"params\" \"arguments\" ...}) and
-returns a plain LSP result dict, or an `effect` for state replacement plus outbound
-notifications. The WorkspaceIndex is held in chyls state under \"index\" as a mutable
-cache (a deliberate exception to the otherwise immutable state); buffer text is
-managed by the engine's workspace helpers. `make-server` assembles a runnable
-chyls server.
-"
+"LSP feature handlers binding analysis onto the language server engine."
 
 (import thyforce.lsp.engine.core :as engine)
 (import thyforce.lsp.engine.protocol :as proto)
@@ -31,10 +23,6 @@ chyls server.
   {model.KIND-CORE-FORM 12 model.KIND-PYTHON-BUILTIN 12 model.KIND-LOCAL-FUNCTION 12
    model.KIND-LOCAL-MACRO 12 model.KIND-READER-MACRO 12 model.KIND-LOCAL-CLASS 5
    model.KIND-LOCAL-VARIABLE 13 model.KIND-PARAMETER 13 model.KIND-MODULE 2})
-
-;; ---------------------------------------------------------------------------
-;; event helpers
-;; ---------------------------------------------------------------------------
 
 (defn _state [event] (get event "state"))
 (defn _index [event] (get (_state event) "index"))
@@ -67,10 +55,6 @@ chyls server.
     (.append parts documentation))
   (.join "\n\n" parts))
 
-;; ---------------------------------------------------------------------------
-;; diagnostics
-;; ---------------------------------------------------------------------------
-
 (defn _diagnostic->lsp [d]
   (proto.diagnostic (get d "message")
     (proto.range (get d "line") (get d "character") (get d "end-line") (get d "end-character"))
@@ -80,10 +64,6 @@ chyls server.
 
 (defn _diagnostics-notification [document]
   (proto.publish-diagnostics document.uri (lfor d document.diagnostics (_diagnostic->lsp d))))
-
-;; ---------------------------------------------------------------------------
-;; lifecycle / sync notifications
-;; ---------------------------------------------------------------------------
 
 (defn did-open [event]
   (setv td (get (_params event) "textDocument"))
@@ -130,10 +110,6 @@ chyls server.
       (.append notifications (_diagnostics-notification document))))
   (engine.effect :notifications notifications))
 
-;; ---------------------------------------------------------------------------
-;; completion
-;; ---------------------------------------------------------------------------
-
 (defn _symbols-for-completion [idx uri prefix context line character]
   (setv resolver (.resolver-for-root idx (.root-for-uri idx uri)))
   (setv kind (get context "kind"))
@@ -166,10 +142,6 @@ chyls server.
   (setv items (lfor symbol (_symbols-for-completion (_index event) uri prefix context line character)
                     (_completion-item symbol replace-range)))
   {"isIncomplete" False "items" items})
-
-;; ---------------------------------------------------------------------------
-;; hover / definition / semantic tokens / folding
-;; ---------------------------------------------------------------------------
 
 (defn hover [event]
   (setv [uri text line character] (_pos event))
@@ -205,10 +177,6 @@ chyls server.
   (lfor fold (folding.folding-ranges text)
         {"startLine" (get fold "start-line") "startCharacter" (get fold "start-character")
          "endLine" (get fold "end-line") "endCharacter" (get fold "end-character")}))
-
-;; ---------------------------------------------------------------------------
-;; document / workspace symbols
-;; ---------------------------------------------------------------------------
 
 (defn document-symbol [event]
   (setv uri (_doc-uri event))
@@ -251,10 +219,6 @@ chyls server.
                     "location" source
                     "containerName" (or (get symbol "detail") (get symbol "kind"))})))
   (sorted out :key (fn [s] (get s "name"))))
-
-;; ---------------------------------------------------------------------------
-;; references / rename / signature help
-;; ---------------------------------------------------------------------------
 
 (defn _renamable? [symbol]
   (in (get symbol "kind")
@@ -342,10 +306,6 @@ chyls server.
    "activeSignature" 0
    "activeParameter" active-parameter})
 
-;; ---------------------------------------------------------------------------
-;; commands
-;; ---------------------------------------------------------------------------
-
 (defn reindex-workspace [event]
   (setv idx (_index event))
   (setv args (get event "arguments"))
@@ -360,10 +320,6 @@ chyls server.
   (.append notifications (proto.show-message f"HyGround reindexed {root} ({(len idx.documents)} documents)."))
   (engine.effect :result {"ok" True "root" (str root) "documents" (len idx.documents)}
                  :notifications notifications))
-
-;; ---------------------------------------------------------------------------
-;; registry + server assembly
-;; ---------------------------------------------------------------------------
 
 (defregistry REGISTRY
   (on-notification "textDocument/didOpen" did-open

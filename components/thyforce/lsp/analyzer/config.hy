@@ -1,14 +1,4 @@
-"Workspace configuration for the language analysis.
-
-Configuration is a plain data map:
-
-    {\"index-limit\" int \"exclude-dirs\" [str ...] \"allow-workspace-imports\" bool}
-
-End users configure the server through a [tool.hyground] table in their project's
-pyproject.toml. That TOML table is treated purely as an external compatibility
-surface; the internal representation is this Hy map. Unknown keys are ignored and
-invalid values fall back to safe defaults so server startup never fails on config.
-"
+"Workspace configuration loader for the [tool.hyground] TOML table."
 
 (import tomllib)
 (import pathlib [Path])

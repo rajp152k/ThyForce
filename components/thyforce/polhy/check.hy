@@ -1,9 +1,4 @@
-"Workspace integrity check.
-
-Aggregates: namespace presence, brick structure (interface + ancestor namespace
-shims), dependency-graph health (dangling intra-namespace refs, cycles), and
-project definition / pyproject drift.
-"
+"Aggregate workspace integrity: structure, deps, and project checks."
 
 (import thyforce.polhy.config :as config_core)
 (import thyforce.polhy.workspace :as workspace)

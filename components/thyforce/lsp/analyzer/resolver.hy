@@ -1,11 +1,4 @@
-"Python and Hy runtime resolution, scoped by workspace root.
-
-Resolution temporarily prepends the project root and its local virtualenv
-site-packages to sys.path while resolving, rather than mutating a process-global
-search path permanently. The resolver is a stateful object: it owns caches and
-search paths, which is a deliberate mutable-cache exception to the otherwise
-data-first, immutable design.
-"
+"Python and Hy runtime resolution, scoped by workspace root."
 
 (import ast)
 (import importlib)
@@ -350,9 +343,6 @@ data-first, immutable design.
       (.append symbols (symbol-from-object visible obj :detail f"attribute of {base-name}")))
     (sorted symbols :key (fn [s] (get s "name")))))
 
-;; ---------------------------------------------------------------------------
-;; symbol construction from runtime objects
-;; ---------------------------------------------------------------------------
 
 (defn symbol-from-object [name obj [detail "Python object"]]
   (model.symbol-info name (_kind-for-object obj)
@@ -396,9 +386,6 @@ data-first, immutable design.
                 :if (and (isinstance name str) (not (.startswith name "_")))
                 #(name obj))))
 
-;; ---------------------------------------------------------------------------
-;; workspace discovery
-;; ---------------------------------------------------------------------------
 
 (defn find-workspace-root [path]
   "Find a practical Python/Hy project root for PATH."
@@ -452,9 +439,6 @@ data-first, immutable design.
       (.append out resolved)))
   out)
 
-;; ---------------------------------------------------------------------------
-;; runtime object introspection
-;; ---------------------------------------------------------------------------
 
 (defn _kind-for-object [obj]
   (cond

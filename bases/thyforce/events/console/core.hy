@@ -1,10 +1,4 @@
-"Console event driver: feed events on stdin, dispatch them, record facts.
-
-A thin transport adapter over the `events/recorder` dispatch instance. Each
-non-blank stdin line is one JSON message `{\"method\" \"params\" [\"id\"]}`; the
-driver threads server state across lines (reusing the engine's JSON dispatch) and
-prints any response messages. No LSP lifecycle is involved.
-"
+"Stdin transport that feeds JSON events into the recorder dispatch server."
 
 (import sys argparse json)
 (import thyforce.events.recorder.core :as recorder)
@@ -12,10 +6,7 @@ prints any response messages. No LSP lifecycle is involved.
 (import thyforce.store.core :as store)
 
 (defn run [server lines [emit print]]
-  "Dispatch each non-blank line of LINES as a JSON message; return final server.
-
-EMIT receives each outbound response message as a JSON string (default: print).
-  "
+  "Dispatch each non-blank JSON line from LINES through SERVER; return final server."
   (setv current server)
   (for [line lines]
     (setv text (.strip line))

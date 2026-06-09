@@ -1,11 +1,4 @@
-"LSP lifecycle builtins for the dispatch engine.
-
-Implements the LSP server lifecycle (initialize / initialized / shutdown / exit)
-and routes `workspace/executeCommand` to the dispatch spine's command handler.
-Exposed as the data map `BUILTINS`, which the LSP `make-server` injects into a
-dispatch server. This is the LSP-specific complement to the transport-agnostic
-dispatch spine: the spine knows nothing about `initialize`; lifecycle is data.
-"
+"LSP lifecycle builtins (initialize/shutdown/exit/executeCommand) for the dispatch engine."
 
 (import thyforce.dispatch.core :as spine)
 (import thyforce.dispatch.jsonrpc [response])

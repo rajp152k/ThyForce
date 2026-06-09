@@ -1,14 +1,4 @@
-"Append-only fact store: facts, projections, and a backend-agnostic interface.
-
-Implements the persistence model of ADR-0001. A fact is an immutable record
-
-    {\"id\" <ordinal> \"time\" <epoch-seconds> \"type\" <string> \"data\" <map>}
-
-appended to an ordered log. `id` is assigned by the store and defines a total
-order; projections fold the log into derived views. Backends are selected by
-config data; `sqlite` (durable, single-writer) is the default and `memory`
-exists for tests. Callers depend on this interface, never on a backend.
-"
+"Append-only fact store: facts, projections, and backend-agnostic interface."
 
 (import time)
 (import thyforce.spec.core :as spec)
@@ -26,15 +16,9 @@ exists for tests. Callers depend on this interface, never on a backend.
     (spec.key-pred "type" (spec.named "non-empty-str?" non-empty-str?))
     (spec.key-pred "data" spec.map?)))
 
-(defn make-fact [type data]
-  "Construct an un-stored fact map; `id`/`time` are assigned on append."
-  {"type" type "data" data})
 
 (defn open-store [[config None]]
-  "Open a store from CONFIG (a map). `backend` selects the adapter (default sqlite).
-
-Returns a store map; pass it to `append-fact` / `read-facts` / `project`.
-  "
+  "Open a store from CONFIG map; `backend` key selects the adapter (default sqlite)."
   (setv cfg (or config {}))
   (setv name (.get cfg "backend" DEFAULT-BACKEND))
   (when (not (in name BACKENDS))
