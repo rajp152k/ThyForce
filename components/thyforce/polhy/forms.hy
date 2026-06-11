@@ -1,16 +1,4 @@
-"Form-based extraction of import/require references from Hy source.
-
-Parses source with Hy's reader (not regex) and walks all forms — including those
-nested in `do`, `eval-and-compile`, etc. — for `import` and `require`
-expressions, yielding one record per referenced module:
-
-    {\"kind\" \"import\" | \"require\"  \"module\" str}
-
-A single `(import a b c)` yields three records. Member lists, aliases, stars, and
-require selectors (`:macros` / `:readers`) are recognized and skipped — only the
-module each clause references is reported, which is exactly what dependency
-analysis needs.
-"
+"Walk Hy AST to extract import/require module references from source text."
 
 (import hy)
 (import hy.models [Expression Symbol List :as HyList Keyword])
@@ -30,11 +18,7 @@ analysis needs.
   (and (isinstance model Symbol) (= (str model) "*")))
 
 (defn _clause-modules [items]
-  "Module names from the items following an import/require head.
-
-Walks module clauses, skipping each module's trailing modifiers: `[members]`,
-bare `*`, and keyword+argument pairs (`:as alias`, `:macros sel`, `:readers sel`).
-  "
+  "Module names from import/require items, skipping trailing modifier forms."
   (setv mods [])
   (setv i 0)
   (setv n (len items))

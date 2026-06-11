@@ -1,10 +1,4 @@
-"SQLite store backend: a single-table append-only fact log.
-
-`id` is the AUTOINCREMENT primary key (a total order starting at 1); `data` is
-stored as JSON text. File-backed databases run in WAL mode for durable,
-concurrent reads under a single writer (ADR-0001). `:memory:` gives an
-ephemeral per-connection store.
-"
+"SQLite store backend: append-only fact log; WAL mode for file-backed databases."
 
 (import json sqlite3)
 

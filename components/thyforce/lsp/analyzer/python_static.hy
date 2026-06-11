@@ -1,12 +1,4 @@
-"Side-effect-free Python source indexing for workspace modules.
-
-Parses `.py`/`.pyi` files with the `ast` module without importing them, so it is
-safe for arbitrary workspaces. A static module is a map:
-
-    {\"module\" str \"path\" Path \"documentation\" str
-     \"symbols\" (or {name symbol-info} None)
-     \"re-exports\" (or {visible #(from-module name)} None)}
-"
+"Side-effect-free Python source indexing for workspace modules."
 
 (import ast)
 (import hy)
@@ -89,9 +81,6 @@ safe for arbitrary workspaces. A static module is a map:
         (setv (get merged name) (_replace-symbol-documentation existing (get doc-symbol "documentation")))))
   merged)
 
-;; ---------------------------------------------------------------------------
-;; public symbol accessors over a parsed module
-;; ---------------------------------------------------------------------------
 
 (defn module-symbol [root visible-name module-name]
   (setv module (load-static-python-module root module-name))
@@ -117,10 +106,6 @@ safe for arbitrary workspaces. A static module is a map:
                    (.get symbols (hy.unmangle (hy.mangle member-name)))))
   (if (is symbol None) None (_with-visible-name symbol visible-name)))
 
-(defn member-symbols [root module-name [prefix ""] [visible-base ""]]
-  (setv module (load-static-python-module root module-name))
-  (if (is module None) [] (member-symbols-from-static-module module prefix visible-base)))
-
 (defn member-symbols-from-static-module [module [prefix ""] [visible-base ""]]
   (when (is (get module "symbols") None)
     (return []))
@@ -132,9 +117,6 @@ safe for arbitrary workspaces. A static module is a map:
       (.append out (_with-visible-name symbol visible))))
   (sorted out :key (fn [symbol] (get symbol "name"))))
 
-;; ---------------------------------------------------------------------------
-;; node-level extraction
-;; ---------------------------------------------------------------------------
 
 (defn _symbols-from-node [uri-str module-name node [is-package False]]
   (cond
@@ -225,9 +207,6 @@ safe for arbitrary workspaces. A static module is a map:
     :source (_range-for-node uri-str target)
     :module module-name))
 
-;; ---------------------------------------------------------------------------
-;; signature formatting
-;; ---------------------------------------------------------------------------
 
 (defn _format-arguments [args]
   (setv positional [#* args.posonlyargs #* args.args])
@@ -260,9 +239,6 @@ safe for arbitrary workspaces. A static module is a map:
     (except [Exception]
       "...")))
 
-;; ---------------------------------------------------------------------------
-;; source ranges and symbol rebuilders
-;; ---------------------------------------------------------------------------
 
 (defn _range-for-node [uri-str node]
   (setv start-line (max (- (getattr node "lineno" 1) 1) 0))

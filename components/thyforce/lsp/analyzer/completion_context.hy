@@ -1,10 +1,4 @@
-"Lightweight completion-context detection for incomplete Hy forms.
-
-Hy's reader is the source of truth for complete forms, but completion often runs
-while a form is incomplete. This scanner recognizes only enough structure to tell
-whether the cursor sits in an import/require module slot or inside a member/macro
-list. The result is a map {\"kind\" str \"module\" (or str None)}.
-"
+"Import/require completion-context detection for incomplete Hy forms."
 
 (setv _DELIMITERS (set "()[]{}"))
 (setv _REQUIRE-SELECTORS #{":macros" ":readers"})

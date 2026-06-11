@@ -1,9 +1,4 @@
-"Data model and Hy macros for dispatch registries.
-
-The public constructors return ordinary Python dictionaries. Macros are only a
-compact authoring layer over the same dictionaries; they do not hide runtime
-registration side effects.
-"
+"Data model and Hy macros for dispatch registries."
 
 (defn _handler-name [handler]
   "Return a stable registry name for a handler reference."
@@ -57,11 +52,7 @@ registration side effects.
      "metadata" metadata}))
 
 (defn registry [#* specs]
-  "Return an immutable registry tuple from zero or more specs.
-
-Use `combine-registries` when composing existing registries; `registry` keeps the
-call site explicit and simply freezes the supplied specs.
-  "
+  "Return an immutable registry tuple from zero or more specs."
   (tuple specs))
 
 (defn combine-registries [#* registries]
@@ -115,12 +106,7 @@ call site explicit and simply freezes the supplied specs.
   issues)
 
 (defn validate-registry [registry [handlers None] [require-handlers False]]
-  "Return validation issue maps for a registry.
-
-Validation is pure: it does not mutate the registry and does not import handler
-modules. Set `require-handlers` with a handler mapping to catch missing runtime
-functions before serving.
-  "
+  "Return validation issue maps for a registry; pure, does not import handler modules."
   (setv issues [])
   (setv features {})
   (setv commands {})

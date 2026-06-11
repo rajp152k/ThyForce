@@ -1,9 +1,4 @@
-"LSP stdio framing and serving helpers.
-
-Transport is intentionally small and separate from server generation. Any code
-that can provide parsed JSON-RPC dictionaries can reuse `thyforce.dispatch.core.dispatch`;
-stdio just adds Language Server Protocol `Content-Length` framing.
-"
+"LSP stdio transport: Content-Length framing, read/write, and serve loop."
 
 (import json)
 (import thyforce.dispatch.jsonrpc [error-response PARSE-ERROR dump-message])
@@ -64,12 +59,7 @@ stdio just adds Language Server Protocol `Content-Length` framing.
   (.flush stream))
 
 (defn serve [server input-stream output-stream]
-  "Serve a generated server over binary input/output streams until EOF.
-
-Returns the final server map, which is useful for tests and embedded transports.
-Malformed frames produce JSON-RPC parse-error responses and the loop continues
-until the input stream is exhausted.
-  "
+  "Serve a dispatch server over binary streams until EOF; return final server map."
   (setv current server)
   (while True
     (try

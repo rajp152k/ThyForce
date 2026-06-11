@@ -1,9 +1,4 @@
-"In-memory store backend: an ordered list of facts. For tests and ephemera.
-
-Facts are deep-copied on the way in and out so stored facts are isolated from
-caller mutation, matching the serialize/deserialize isolation of the sqlite
-backend.
-"
+"In-memory store backend; facts stored as an ordered list."
 
 (import copy)
 

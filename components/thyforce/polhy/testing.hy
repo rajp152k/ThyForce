@@ -1,12 +1,4 @@
-"Test discovery + aggregation runner.
-
-Discovers `test_*<test-ext>` files under the configured test root and runs them
-through the workspace's own virtualenv Python (NOT the `hy` launcher, so
-`sys.executable` is a real Python and libraries that subprocess it — e.g.
-typeshed stub lookup — work). Each test file follows the repo convention of a
-`run-tests` function guarded by `(when (= __name__ \"__main__\") (run-tests))`;
-the driver executes that entrypoint per file, captures pass/fail, and aggregates.
-"
+"Discover and run test files via workspace virtualenv Python; aggregate results."
 
 (import os subprocess json tempfile)
 (import pathlib [Path])
@@ -70,11 +62,7 @@ the driver executes that entrypoint per file, captures pass/fail, and aggregates
       [])))
 
 (defn run [[start None] [test-files None] [python None]]
-  "Discover (or take) test files and run them through the workspace venv Python.
-
-Returns {ok, passed, failed, total, results}. Each result is
-{file, ok, error, summary}.
-  "
+  "Run TEST-FILES (or discover them) and return {ok, passed, failed, total, results}."
   (setv root (config_core.workspace-root start))
   (setv config (config_core.load-config root))
   (setv files (if (is test-files None) (discover root config) test-files))

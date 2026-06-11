@@ -1,9 +1,4 @@
-"HyGround language-server entrypoint.
-
-Assembles the service (registry + handlers + a fresh WorkspaceIndex) and serves it
-over stdio using the lsp engine's Content-Length framing. All behavior lives in the
-`service` component and the engine; this base is a thin adapter.
-"
+"HyGround language-server entrypoint."
 
 (import sys)
 (import argparse)

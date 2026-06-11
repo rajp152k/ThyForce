@@ -1,9 +1,4 @@
-"Filesystem-path / file URI conversion.
-
-A small, dependency-free replacement for pygls.uris covering the file scheme on
-POSIX-style paths. Symbols carry file:// URIs in their source locations, so this
-lives with analysis rather than in the protocol engine.
-"
+"Filesystem-path / file URI conversion for the file:// scheme."
 
 (import pathlib [Path])
 (import urllib.parse [urlparse unquote :as url-unquote])

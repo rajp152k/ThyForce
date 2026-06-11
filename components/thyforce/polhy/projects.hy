@@ -1,12 +1,4 @@
-"Project machinery: data-first project definitions -> generated pyproject.toml.
-
-A project is declared in `projects/<name>/project.cfg.hy` as a `PROJECT` map of
-entry bricks + metadata. polhy computes the transitive brick *closure* (via the
-form-based dependency report) and the *library* set (third-party deps the closure
-actually imports, version-pinned from the root development project), then
-generates a `pyproject.toml` with the right `force-include` mappings and
-dependencies. Bases stay bases; a project *includes* bricks, it does not own code.
-"
+"Project definitions: compute closure and libs, generate pyproject.toml."
 
 (import re tomllib)
 (import pathlib [Path])
@@ -23,10 +15,6 @@ dependencies. Bases stay bases; a project *includes* bricks, it does not own cod
     (spec.key-pred "version" spec.str?)
     (spec.key-pred "bricks" (spec.list-of spec.str?))))
 
-;; ---------------------------------------------------------------------------
-;; discovery / loading
-;; ---------------------------------------------------------------------------
-
 (defn projects-dir [root config]
   (/ (Path root) (config_core.get-in config ["paths" "projects"] "projects")))
 
@@ -42,10 +30,6 @@ dependencies. Bases stay bases; a project *includes* bricks, it does not own cod
 
 (defn load-project-def [project]
   (config_core.load-data (/ (Path (get project "root")) PROJECT-FILE) "PROJECT"))
-
-;; ---------------------------------------------------------------------------
-;; closure + libraries
-;; ---------------------------------------------------------------------------
 
 (defn closure [entry-bricks deps-report]
   "Transitive set of bricks reachable from ENTRY-BRICKS via brick dependencies."
@@ -83,10 +67,6 @@ dependencies. Bases stay bases; a project *includes* bricks, it does not own cod
     (.update libs (get (.get deps-report brick {"libs" []}) "libs")))
   (lfor lib (sorted libs) (.get pins lib lib)))
 
-;; ---------------------------------------------------------------------------
-;; force-include computation
-;; ---------------------------------------------------------------------------
-
 (defn _brick-kind-dir [info brick-name]
   (if (any (gfor b (get info "bases") (= (get b "name") brick-name))) "bases" "components"))
 
@@ -122,9 +102,6 @@ dependencies. Bases stay bases; a project *includes* bricks, it does not own cod
     (add (.format "../../{}/{}/{}" kind ns brick) (.format "{}/{}" ns brick)))
   pairs)
 
-;; ---------------------------------------------------------------------------
-;; pyproject.toml generation
-;; ---------------------------------------------------------------------------
 
 (defn _q [value] (+ "\"" value "\""))
 
@@ -160,10 +137,6 @@ dependencies. Bases stay bases; a project *includes* bricks, it does not own cod
   (for [[src dest] includes]
     (.append lines (+ (_q src) " = " (_q dest))))
   (+ (.join "\n" lines) "\n"))
-
-;; ---------------------------------------------------------------------------
-;; sync + check + create
-;; ---------------------------------------------------------------------------
 
 (defn _context [root]
   (setv config (config_core.load-config root))

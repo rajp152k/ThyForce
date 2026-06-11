@@ -78,12 +78,7 @@
   active)
 
 (defn enclosing-call [source line character]
-  "Return (callee active-parameter) for the nearest open call, or None.
-
-This is intentionally lightweight. Hy's reader remains the source of truth for
-indexing; signature help just needs a useful local guess while the user is
-editing incomplete forms.
-  "
+  "Return (callee active-parameter) for the nearest open call, or None."
   (setv lines (.splitlines source :keepends True))
   (when (not (<= 0 line (- (len lines) 1)))
     (return None))

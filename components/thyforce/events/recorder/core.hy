@@ -1,12 +1,4 @@
-"Event recorder: a non-LSP dispatch instance that records events as facts.
-
-Builds an lsp-engine server (registry + handlers) whose handlers append facts to
-a `thyforce/store` instance carried in server state. This is the engine's second
-consumer: it uses only the generic feature-registry dispatch path (no LSP
-lifecycle), demonstrating that the dispatch core generalises beyond language
-servers. State is threaded immutably by the engine; the store write is the
-handler's side effect.
-"
+"Dispatch server that records inbound events as facts into a store."
 
 (import thyforce.dispatch.core :as engine)
 (import thyforce.dispatch.registry :as feature)

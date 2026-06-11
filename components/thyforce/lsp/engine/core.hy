@@ -1,12 +1,4 @@
-"LSP engine: the dispatch spine plus LSP lifecycle, transport, and protocol.
-This is the LSP-specific layer over `thyforce/dispatch`. `make-server` builds a
-dispatch server and injects the LSP lifecycle `builtins` (initialize, shutdown,
-exit, executeCommand). The generic dispatch surface is re-exported for callers;
-LSP data shapes live in the submodules `lifecycle`, `stdio`, `workspace`, and
-`protocol`.
-Registry authoring macros (`defregistry`, `on-request`, `on-notification`,
-`on-command`) must be required directly from `thyforce.dispatch.registry`.
-"
+"LSP engine: dispatch spine re-exports plus LSP server construction."
 (import thyforce.dispatch.core :as spine)
 (import thyforce.dispatch.registry :as reg)
 (import thyforce.dispatch.jsonrpc :as jsonrpc)
@@ -22,7 +14,6 @@ Registry authoring macros (`defregistry`, `on-request`, `on-notification`,
   (setv out (dict server))
   (setv (get out "builtins") lifecycle.BUILTINS)
   out)
-;; Re-export the dispatch spine surface for callers that go through the engine.
 (setv dispatch spine.dispatch)
 (setv dispatch-message spine.dispatch-message)
 (setv dispatch-json spine.dispatch-json)

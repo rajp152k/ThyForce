@@ -5,7 +5,6 @@
 (setv PARSE-ERROR -32700)
 (setv INVALID-REQUEST -32600)
 (setv METHOD-NOT-FOUND -32601)
-(setv INVALID-PARAMS -32602)
 (setv INTERNAL-ERROR -32603)
 
 (defn response [id result]
@@ -33,10 +32,6 @@
     (setv (get out "params") params))
   out)
 
-(defn parse-message [payload]
-  "Parse a JSON-RPC payload from bytes or text."
-  (setv text (if (isinstance payload bytes) (.decode payload "utf-8") payload))
-  (json.loads text))
 
 (defn dump-message [message]
   "Serialize a JSON-RPC message with compact separators."
